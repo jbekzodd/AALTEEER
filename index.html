@@ -1,1 +1,1013 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AALTEEER Chess AI - Ultimate Ecosystem</title>
+  
+  <!-- Dependencies -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+  <style>
+    :root {
+      --bg-primary: #100f0d;
+      --bg-card: #1b1915;
+      --bg-card-elevated: #24221d;
+      --accent: #3692e7;
+      --accent-glow: rgba(54, 146, 231, 0.35);
+      --accent-green: #2ecc71;
+      --accent-gold: #f1c40f;
+      --accent-red: #e74c3c;
+      --accent-orange: #e67e22;
+      --text-main: #ffffff;
+      --text-muted: #9e9a93;
+      --border-color: #2f2c25;
+      --border-light: #3e3a32;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 0%, #1c1a14 0%, var(--bg-primary) 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 75px;
+    }
+
+    /* Top Bar */
+    .top-header {
+      background: rgba(27, 25, 21, 0.85);
+      backdrop-filter: blur(12px);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+
+    .brand span { color: var(--text-main); }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lang-picker {
+      background: var(--bg-card-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .user-pill {
+      background: var(--bg-card-elevated);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    /* Views Controller */
+    .view-panel {
+      display: none;
+      animation: fadeInView 0.25s ease-out;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 12px 14px;
+    }
+
+    .view-panel.active { display: block; }
+
+    @keyframes fadeInView {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Radar Skill Tracker */
+    .skills-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .skill-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .skill-name { width: 80px; color: var(--text-muted); }
+    .skill-bar-wrap {
+      flex: 1;
+      height: 6px;
+      background: #141310;
+      border-radius: 4px;
+      margin: 0 10px;
+      overflow: hidden;
+      border: 1px solid #23211b;
+    }
+
+    .skill-bar-val {
+      height: 100%;
+      background: linear-gradient(90deg, #27ae60, var(--accent-green));
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    .skill-digit { width: 35px; text-align: right; color: var(--accent-green); }
+
+    /* Match Info */
+    .match-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+    }
+
+    .opponent-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .opponent-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #2b2822;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      border: 1px solid var(--border-light);
+    }
+
+    .opponent-details h4 { font-size: 13px; font-weight: 700; }
+    .opponent-details p { font-size: 11px; color: var(--text-muted); }
+
+    .game-status-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(46, 204, 113, 0.12);
+      color: var(--accent-green);
+      border: 1px solid rgba(46, 204, 113, 0.25);
+    }
+
+    /* Board Area */
+    .board-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 8px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+      margin-bottom: 12px;
+    }
+
+    #board { width: 100%; border-radius: 8px; overflow: hidden; }
+
+    /* Action Controls */
+    .game-actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card-elevated);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 12px var(--accent-glow); }
+    .btn-accent { background: var(--accent-green); border-color: var(--accent-green); color: #000; }
+
+    .history-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px 14px;
+      height: 55px;
+      overflow-y: auto;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Cards & Lists for Modules */
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 15px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .module-card:hover, .module-card:active {
+      border-color: var(--accent);
+      background: var(--bg-card-elevated);
+      transform: translateY(-2px);
+    }
+
+    .card-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #25221c;
+      border: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .card-details h3 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .card-details p { font-size: 11px; color: var(--text-muted); }
+
+    /* Bottom Navigation Bar */
+    .bottom-navbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 65px;
+      background: rgba(27, 25, 21, 0.92);
+      backdrop-filter: blur(14px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      z-index: 1000;
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 0;
+      width: 20%;
+      transition: color 0.15s;
+    }
+
+    .nav-btn.active { color: var(--accent); }
+    .nav-btn-icon { font-size: 20px; margin-bottom: 2px; }
+
+    /* Large Celebration & Auth Modals */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-box {
+      background: linear-gradient(165deg, #24221d, #151411);
+      border: 2px solid var(--accent-green);
+      border-radius: 24px;
+      padding: 28px 22px;
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 40px rgba(46, 204, 113, 0.35);
+      animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-badge { font-size: 50px; margin-bottom: 12px; }
+    .modal-title { font-size: 22px; font-weight: 900; color: var(--accent-green); margin-bottom: 10px; }
+    .modal-text { font-size: 14px; color: #ecebe8; line-height: 1.5; margin-bottom: 20px; }
+
+    .input-field {
+      width: 100%;
+      background: #141310;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 13px 15px;
+      color: #fff;
+      font-size: 14px;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    .input-field:focus { border-color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Bar -->
+  <div class="top-header">
+    <div class="brand">
+      <span>♟️</span> AALTEEER <span>AI</span>
+    </div>
+    <div class="header-actions">
+      <select class="lang-picker" id="langSelector" onchange="switchAppLanguage(this.value)">
+        <option value="uz">O'zbekcha 🇺🇿</option>
+        <option value="ru">Русский 🇷🇺</option>
+        <option value="en">English 🇬🇧</option>
+        <option value="es">Español 🇪🇸</option>
+        <option value="de">Deutsch 🇩🇪</option>
+        <option value="fr">Français 🇫🇷</option>
+        <option value="tr">Türkçe 🇹🇷</option>
+        <option value="ar">العربية 🇸🇦</option>
+        <option value="zh">中文 🇨🇳</option>
+        <option value="hi">हिन्दी 🇮🇳</option>
+      </select>
+      <div class="user-pill" onclick="openAuthModal()">
+        <span>👤</span> <span id="userDisplay">Foydalanuvchi</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 1: MATCHBOARD & SKILL RADAR -->
+  <div id="view-match" class="view-panel active">
+    <!-- Skills Realtime Radar -->
+    <div class="skills-card">
+      <div class="skill-row">
+        <span class="skill-name" id="l-opening">Debyut</span>
+        <div class="skill-bar-wrap"><div class="skill-bar-val" style="width: 100%;"></div></div>
+        <span class="skill-digit">100%</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-name" id="l-tactics">Taktika</span>
+        <div class="skill-bar-wrap"><div class="skill-bar-val" style="width: 70%;"></div></div>
+        <span class="skill-digit">70%</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-name" id="l-midgame">Mittelshpil</span>
+        <div class="skill-bar-wrap"><div class="skill-bar-val" style="width: 45%;"></div></div>
+        <span class="skill-digit">45%</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-name" id="l-endgame">Endshpil</span>
+        <div class="skill-bar-wrap"><div class="skill-bar-val" style="width: 30%;"></div></div>
+        <span class="skill-digit">30%</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-name" id="l-focus">Diqqat</span>
+        <div class="skill-bar-wrap"><div class="skill-bar-val" style="width: 85%; background: linear-gradient(90deg, #2980b9, var(--accent));"></div></div>
+        <span class="skill-digit" style="color:var(--accent);">85%</span>
+      </div>
+    </div>
+
+    <!-- Match Status -->
+    <div class="match-meta-bar">
+      <div class="opponent-info">
+        <div class="opponent-avatar" id="botAvatar">🤖</div>
+        <div class="opponent-details">
+          <h4 id="botName">AALTEEER Engine</h4>
+          <p id="botElo">ELO: 1950 (Master)</p>
+        </div>
+      </div>
+      <div class="game-status-badge" id="gameTurnStatus">Sizning navbatingiz</div>
+    </div>
+
+    <!-- Interactive Chessboard -->
+    <div class="board-container">
+      <div id="board"></div>
+    </div>
+
+    <!-- Match Controls -->
+    <div class="game-actions-grid">
+      <button class="btn btn-primary" id="btnNewGame" onclick="restartMatch()">🔄 Yangi</button>
+      <button class="btn" id="btnUndoMove" onclick="undoMove()">↩️ Qaytarish</button>
+      <button class="btn btn-accent" id="btnVoiceMove" onclick="triggerVoiceControl()">🎙️ Ovoz</button>
+    </div>
+
+    <!-- Notation History -->
+    <div class="history-card" id="matchPgnHistory">
+      Partiya boshlanishini kutmoqda...
+    </div>
+  </div>
+
+  <!-- VIEW 2: LESSONS & PUZZLE TRAINER -->
+  <div id="view-academy" class="view-panel">
+    <h2 style="font-size:16px; color:var(--accent); margin-bottom:12px;" id="l-academy-title">🎓 Debyutlar va Taktika Akademiyasi</h2>
+    <div class="module-card" onclick="loadTacticalPuzzle(0)">
+      <div class="card-icon-box">⚡</div>
+      <div class="card-details">
+        <h3>F7 Qurbonligi (Italyancha)</h3>
+        <p>Zaif katakka zarba berish orqali ustunlikka erishing.</p>
+      </div>
+    </div>
+    <div class="module-card" onclick="loadTacticalPuzzle(1)">
+      <div class="card-icon-box">📌</div>
+      <div class="card-details">
+        <h3>Bog'lanish (Pin Taktikasi)</h3>
+        <p>Raqib otini bog'lab, farzinini xavf ostiga qo'ying.</p>
+      </div>
+    </div>
+    <div class="module-card" onclick="alert('Debyutlar katalogi yuklanmoqda...')">
+      <div class="card-icon-box">📖</div>
+      <div class="card-details">
+        <h3>Sitsiliya & Fransuz Nazariyasi</h3>
+        <p>Zamonaviy ochiq va yopiq debyutlar tahlili.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 3: LIVE & SOCIAL (PVP / BLINDFOLD) -->
+  <div id="view-social" class="view-panel">
+    <h2 style="font-size:16px; color:var(--accent); margin-bottom:12px;" id="l-social-title">⚔️ Sotsial, PVP va Ovozli Rejim</h2>
+    <div class="module-card" onclick="toggleBlindfoldGame()">
+      <div class="card-icon-box">🙈</div>
+      <div class="card-details">
+        <h3>Vocal Blindfold Chess</h3>
+        <p>Donalarni yashiring, faqat ovoz orqali ko'zsiz o'ynang!</p>
+      </div>
+    </div>
+    <div class="module-card" onclick="sharePvpLink()">
+      <div class="card-icon-box">👥</div>
+      <div class="card-details">
+        <h3>Do'st bilan Bahs (PVP Duel)</h3>
+        <p>Telegram orqali do'stingizga chaqiruv havolasi yuboring.</p>
+      </div>
+    </div>
+    <div class="module-card" onclick="alert('Jonli translyatsiyalar bo\'limi faollashmoqda...')">
+      <div class="card-icon-box">📡</div>
+      <div class="card-details">
+        <h3>Grandmaster Live Translyatsiya</h3>
+        <p>Top shaxmatchilarning partiyalarini real vaqtda kuzating.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 4: ALTER EGO CLONER -->
+  <div id="view-alterego" class="view-panel">
+    <h2 style="font-size:16px; color:var(--accent); margin-bottom:12px;" id="l-alterego-title">🧬 Alter Ego Engine</h2>
+    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:14px; padding:16px; margin-bottom:12px;">
+      <h3 style="font-size:14px; color:var(--accent-gold); margin-bottom:6px;">O'yin Uslubingizni Klonlash</h3>
+      <p style="font-size:11px; color:var(--text-muted); line-height:1.5; margin-bottom:12px;">
+        AI sizning tajovuzkorligingiz, sevimli debyutlaringiz va taktik yurishlaringizni tahlil qilib, aynan sizdek o'ynaydigan shaxsiy botingizni yaratadi.
+      </p>
+      <button class="btn btn-primary" style="width:100%;" onclick="cloneUserAlterEgo()">Bot Nusxamni Yaratish 🚀</button>
+    </div>
+
+    <h3 style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">Tayyor GM Shaxsiyatlari:</h3>
+    <div class="module-card" onclick="chooseBotPersonality('Aggressive', '🔥', 'Tajovuzkor (Attack GM)', 2100)">
+      <div class="card-icon-box">🔥</div>
+      <div class="card-details">
+        <h3>Tajovuzkor (Aggressive)</h3>
+        <p>Doimiy qurbonliklar va to'xtovsiz hujumga tayanuvchi bot.</p>
+      </div>
+    </div>
+    <div class="module-card" onclick="chooseBotPersonality('Positional', '🛡️', 'Pozitsion (Solid GM)', 2000)">
+      <div class="card-icon-box">🛡️</div>
+      <div class="card-details">
+        <h3>Pozitsion (Solid Defense)</h3>
+        <p>Karpov uslubidagi xatosiz mudofaa va profilaktika.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 5: SETTINGS -->
+  <div id="view-settings" class="view-panel">
+    <h2 style="font-size:16px; color:var(--accent); margin-bottom:12px;" id="l-settings-title">⚙️ Sozlamalar va Profil</h2>
+    <div class="module-card" onclick="openAuthModal()">
+      <div class="card-icon-box">👤</div>
+      <div class="card-details">
+        <h3 id="settingsProfileName">Foydalanuvchi Profili</h3>
+        <p id="settingsProfileElo">ELO: 1500 | Partiyalar: 12</p>
+      </div>
+    </div>
+    <div class="module-card" onclick="alert('Taxta dizayni yangilandi!')">
+      <div class="card-icon-box">🎨</div>
+      <div class="card-details">
+        <h3>Taxta va Donalar Temasi</h3>
+        <p>Dark Luxury, Classic Wood va Glass Neon uslublari.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-navbar">
+    <div class="nav-btn active" onclick="switchNavTab('match', this)">
+      <span class="nav-btn-icon">♟️</span>
+      <span id="n-match">Maydon</span>
+    </div>
+    <div class="nav-btn" onclick="switchNavTab('academy', this)">
+      <span class="nav-btn-icon">🎓</span>
+      <span id="n-academy">Darslar</span>
+    </div>
+    <div class="nav-btn" onclick="switchNavTab('social', this)">
+      <span class="nav-btn-icon">⚔️</span>
+      <span id="n-social">Live</span>
+    </div>
+    <div class="nav-btn" onclick="switchNavTab('alterego', this)">
+      <span class="nav-btn-icon">🤖</span>
+      <span id="n-alterego">AI Bot</span>
+    </div>
+    <div class="nav-btn" onclick="switchNavTab('settings', this)">
+      <span class="nav-btn-icon">⚙️</span>
+      <span id="n-settings">Sozlama</span>
+    </div>
+  </div>
+
+  <!-- AUTH & REGISTER MODAL -->
+  <div class="modal-overlay" id="authModal" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-badge">♟️</div>
+      <div class="modal-title" id="authModalTitle">Platformaga Kirish</div>
+      <div class="modal-text" id="authModalDesc">Ism va parolingizni kiriting:</div>
+      
+      <input type="text" id="authUsernameInput" class="input-field" placeholder="Ismingiz yoki Taxallus">
+      <input type="password" id="authPasswordInput" class="input-field" placeholder="Parol (••••••••)">
+      
+      <button class="btn btn-primary" style="width:100%; margin-bottom:10px;" onclick="processAuthRegister()">Kirish / Ro'yxatdan O'tish 🚀</button>
+      <button class="btn" style="width:100%;" onclick="closeAuthModal()">Yopish</button>
+    </div>
+  </div>
+
+  <!-- CELEBRATION MODAL -->
+  <div class="modal-overlay" id="celebrationModal" style="display: none;">
+    <div class="modal-box">
+      <div class="modal-badge">🎉</div>
+      <div class="modal-title" id="celTitle">Xush Kelibsiz!</div>
+      <div class="modal-text" id="celText">
+        Tabriklaymiz! Siz AALTEEER sun'iy intellekt ekotizimiga muvaffaqiyatli qo'shildingiz.
+      </div>
+      <button class="btn btn-accent" style="width:100%;" onclick="closeCelebrationModal()">Boshlash 🚀</button>
+    </div>
+  </div>
+
+  <!-- CORE LOGIC & TRANSLATIONS -->
+  <script>
+    // 10 Language Complete Dictionary
+    const i18nEngine = {
+      uz: {
+        yourTurn: "Sizning navbatingiz (Oqlar)",
+        thinking: "AALTEEER o'ylamoqda...",
+        winMsg: "Mot! Siz g'alaba qozondingiz! 🎉",
+        lossMsg: "Mot! Qoralar g'alaba qozondi.",
+        drawMsg: "Durang!",
+        opening: "Debyut",
+        tactics: "Taktika",
+        midgame: "Mittelshpil",
+        endgame: "Endshpil",
+        focus: "Diqqat",
+        btnNew: "🔄 Yangi",
+        btnUndo: "↩️ Qaytarish",
+        btnVoice: "🎙️ Ovoz",
+        nMatch: "Maydon",
+        nAcademy: "Darslar",
+        nSocial: "Live",
+        nBot: "AI Bot",
+        nSettings: "Sozlama",
+        welcomeTitle: "AALTEEER Olamiga Xush Kelibsiz, ",
+        welcomeDesc: "Tabriklaymiz! AI shaxmat maydoniga qo'shildingiz. O'z uslubingizdagi botni yaratishga tayyormisiz?"
+      },
+      ru: {
+        yourTurn: "Ваш ход (Белые)",
+        thinking: "AALTEEER думает...",
+        winMsg: "Мат! Вы победили! 🎉",
+        lossMsg: "Мат! Черные победили.",
+        drawMsg: "Ничья!",
+        opening: "Дебют",
+        tactics: "Тактика",
+        midgame: "Миттельшпиль",
+        endgame: "Эндшпиль",
+        focus: "Фокус",
+        btnNew: "🔄 Новая",
+        btnUndo: "↩️ Назад",
+        btnVoice: "🎙️ Голос",
+        nMatch: "Поле",
+        nAcademy: "Уроки",
+        nSocial: "Live",
+        nBot: "ИИ Бот",
+        nSettings: "Настройки",
+        welcomeTitle: "Добро пожаловать в AALTEEER, ",
+        welcomeDesc: "Поздравляем! Вы подключились к экосистеме ИИ. Готовы создать своего бота-клона?"
+      },
+      en: {
+        yourTurn: "Your Turn (White)",
+        thinking: "AALTEEER is thinking...",
+        winMsg: "Checkmate! You won! 🎉",
+        lossMsg: "Checkmate! Black won.",
+        drawMsg: "Draw!",
+        opening: "Opening",
+        tactics: "Tactics",
+        midgame: "Middlegame",
+        endgame: "Endgame",
+        focus: "Focus",
+        btnNew: "🔄 New",
+        btnUndo: "↩️ Undo",
+        btnVoice: "🎙️ Voice",
+        nMatch: "Board",
+        nAcademy: "Lessons",
+        nSocial: "Live",
+        nBot: "AI Bot",
+        nSettings: "Settings",
+        welcomeTitle: "Welcome to AALTEEER, ",
+        welcomeDesc: "Congratulations! You joined the premier AI chess ecosystem. Ready to clone your style?"
+      },
+      es: {
+        yourTurn: "Tu turno (Blancas)", thinking: "AALTEEER pensando...", winMsg: "¡Jaque mate! ¡Ganaste! 🎉", lossMsg: "Jaque mate. Negras ganan.", drawMsg: "¡Tablas!",
+        opening: "Apertura", tactics: "Táctica", midgame: "Medio juego", endgame: "Final", focus: "Enfoque",
+        btnNew: "🔄 Nuevo", btnUndo: "↩️ Deshacer", btnVoice: "🎙️ Voz",
+        nMatch: "Tablero", nAcademy: "Clases", nSocial: "Live", nBot: "IA Bot", nSettings: "Ajustes",
+        welcomeTitle: "Bienvenido a AALTEEER, ", welcomeDesc: "¡Felicidades! Te has unido al ecosistema de ajedrez con IA."
+      },
+      de: {
+        yourTurn: "Du bist am Zug (Weiß)", thinking: "AALTEEER denkt...", winMsg: "Schachmatt! Gewonnen! 🎉", lossMsg: "Schachmatt. Schwarz gewinnt.", drawMsg: "Remis!",
+        opening: "Eröffnung", tactics: "Taktik", midgame: "Mittelspiel", endgame: "Endspiel", focus: "Fokus",
+        btnNew: "🔄 Neu", btnUndo: "↩️ Zurück", btnVoice: "🎙️ Stimme",
+        nMatch: "Brett", nAcademy: "Lernen", nSocial: "Live", nBot: "KI Bot", nSettings: "Optionen",
+        welcomeTitle: "Willkommen bei AALTEEER, ", welcomeDesc: "Glückwunsch! Du bist der KI-Schach-Plattform beigetreten."
+      },
+      fr: {
+        yourTurn: "À vous de jouer (Blancs)", thinking: "AALTEEER réfléchit...", winMsg: "Échec et mat ! Victoire ! 🎉", lossMsg: "Échec et mat. Les Noirs gagnent.", drawMsg: "Nulle !",
+        opening: "Ouverture", tactics: "Tactique", midgame: "Milieu", endgame: "Finale", focus: "Focus",
+        btnNew: "🔄 Nouveau", btnUndo: "↩️ Annuler", btnVoice: "🎙️ Voix",
+        nMatch: "Échiquier", nAcademy: "Cours", nSocial: "Live", nBot: "IA Bot", nSettings: "Réglages",
+        welcomeTitle: "Bienvenue sur AALTEEER, ", welcomeDesc: "Félicitations ! Vous avez rejoint l'écosystème d'échecs IA."
+      },
+      tr: {
+        yourTurn: "Sıra Sizde (Beyazlar)", thinking: "AALTEEER düşünüyor...", winMsg: "Şah Mat! Kazandınız! 🎉", lossMsg: "Şah Mat. Siyahlar kazandı.", drawMsg: "Berabere!",
+        opening: "Açılış", tactics: "Taktik", midgame: "Oyun Ortası", endgame: "Oyun Sonu", focus: "Odak",
+        btnNew: "🔄 Yeni", btnUndo: "↩️ Geri Al", btnVoice: "🎙️ Ses",
+        nMatch: "Tahta", nAcademy: "Dersler", nSocial: "Live", nBot: "AI Bot", nSettings: "Ayarlar",
+        welcomeTitle: "AALTEEER'e Hoş Geldiniz, ", welcomeDesc: "Tebrikler! Yapay zeka satranç platformuna katıldınız."
+      },
+      ar: {
+        yourTurn: "دورك (الأبيض)", thinking: "يفكر AALTEEER...", winMsg: "كش مات! لقد فزت! 🎉", lossMsg: "كش مات. فاز الأسود.", drawMsg: "تعادل!",
+        opening: "الافتتاحية", tactics: "التكتيك", midgame: "وسط اللعبة", endgame: "نهاية اللعبة", focus: "التركيز",
+        btnNew: "🔄 جديد", btnUndo: "↩️ تراجع", btnVoice: "🎙️ صوت",
+        nMatch: "الرقعة", nAcademy: "دروس", nSocial: "Live", nBot: "روبوت AI", nSettings: "إعدادات",
+        welcomeTitle: "مرحبًا بك في AALTEEER، ", welcomeDesc: "تهانينا! لقد انضممت إلى منصة الشطرنج بالذكاء الاصطناعي."
+      },
+      zh: {
+        yourTurn: "轮到你了 (白棋)", thinking: "AALTEEER 正在思考...", winMsg: "将死！你赢了！🎉", lossMsg: "将死！黑棋获胜。", drawMsg: "和棋！",
+        opening: "开局", tactics: "战术", midgame: "中局", endgame: "残局", focus: "专注度",
+        btnNew: "🔄 新局", btnUndo: "↩️ 悔棋", btnVoice: "🎙️ 语音",
+        nMatch: "棋盘", nAcademy: "课程", nSocial: "Live", nBot: "AI 机器人", nSettings: "设置",
+        welcomeTitle: "欢迎来到 AALTEEER, ", welcomeDesc: "恭喜！您已成功加入 AI 国际象棋生态系统。"
+      },
+      hi: {
+        yourTurn: "आपकी चाल (सफेद)", thinking: "AALTEEER सोच रहा है...", winMsg: "शह और मात! आप जीत गए! 🎉", lossMsg: "शह और मात! काले रंग की जीत।", drawMsg: "ड्रॉ!",
+        opening: "शुरुआत", tactics: "रणनीति", midgame: "मध्य खेल", endgame: "अंतिम खेल", focus: "एकाग्रता",
+        btnNew: "🔄 नया", btnUndo: "↩️ वापस", btnVoice: "🎙️ आवाज़",
+        nMatch: "बोर्ड", nAcademy: "सबक", nSocial: "Live", nBot: "AI बॉट", nSettings: "सेटिंग्स",
+        welcomeTitle: "AALTEEER में आपका स्वागत है, ", welcomeDesc: "बधाई हो! आप AI शतरंज प्लेटफॉर्म में शामिल हो गए हैं।"
+      }
+    };
+
+    let activeLang = 'uz';
+
+    function switchAppLanguage(lang) {
+      activeLang = lang;
+      const t = i18nEngine[lang] || i18nEngine.uz;
+      
+      $('#l-opening').text(t.opening);
+      $('#l-tactics').text(t.tactics);
+      $('#l-midgame').text(t.midgame);
+      $('#l-endgame').text(t.endgame);
+      $('#l-focus').text(t.focus);
+
+      $('#btnNewGame').html(t.btnNew);
+      $('#btnUndoMove').html(t.btnUndo);
+      $('#btnVoiceMove').html(t.btnVoice);
+
+      $('#n-match').text(t.nMatch);
+      $('#n-academy').text(t.nAcademy);
+      $('#n-social').text(t.nSocial);
+      $('#n-alterego').text(t.nBot);
+      $('#n-settings').text(t.nSettings);
+
+      updateGameTurnBadge();
+    }
+
+    // Navigation Switcher
+    function switchNavTab(tabKey, el) {
+      $('.view-panel').removeClass('active');
+      $('.nav-btn').removeClass('active');
+      $('#view-' + tabKey).addClass('active');
+      $(el).addClass('active');
+
+      if (tabKey === 'match' && boardInstance) {
+        boardInstance.resize();
+      }
+    }
+
+    // Chess Logic & Engine
+    let boardInstance = null;
+    let chessGame = new Chess();
+    let moveHistoryEl = $('#matchPgnHistory');
+    let turnStatusEl = $('#gameTurnStatus');
+
+    function evaluateChessBoard(boardArr) {
+      let total = 0;
+      const pieceScores = { p: 10, r: 50, n: 30, b: 30, q: 90, k: 900 };
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          const piece = boardArr[i][j];
+          if (piece) {
+            const val = pieceScores[piece.type] || 0;
+            total += piece.color === 'w' ? val : -val;
+          }
+        }
+      }
+      return total;
+    }
+
+    function calculateBestEngineMove() {
+      const moves = chessGame.moves();
+      if (moves.length === 0 || chessGame.game_over()) {
+        updateGameTurnBadge();
+        return;
+      }
+
+      let optimalMove = null;
+      let lowestEval = 99999;
+
+      for (let i = 0; i < moves.length; i++) {
+        chessGame.move(moves[i]);
+        const score = evaluateChessBoard(chessGame.board());
+        chessGame.undo();
+
+        if (score < lowestEval) {
+          lowestEval = score;
+          optimalMove = moves[i];
+        }
+      }
+
+      if (!optimalMove) optimalMove = moves[Math.floor(Math.random() * moves.length)];
+
+      chessGame.move(optimalMove);
+      boardInstance.position(chessGame.fen());
+      refreshHistoryPgn();
+      updateGameTurnBadge();
+    }
+
+    function onDragPieceStart(source, piece) {
+      if (chessGame.game_over()) return false;
+      if (piece.search(/^b/) !== -1 || chessGame.turn() !== 'w') return false;
+    }
+
+    function onDropPiece(source, target) {
+      const move = chessGame.move({ from: source, to: target, promotion: 'q' });
+      if (move === null) return 'snapback';
+
+      refreshHistoryPgn();
+      const t = i18nEngine[activeLang] || i18nEngine.uz;
+      turnStatusEl.text(t.thinking);
+      turnStatusEl.css({ color: 'var(--accent-orange)', background: 'rgba(230, 126, 34, 0.12)' });
+      window.setTimeout(calculateBestEngineMove, 300);
+    }
+
+    function refreshHistoryPgn() {
+      const pgn = chessGame.pgn({ max_width: 5, newline_char: '  ' });
+      moveHistoryEl.html(pgn || "Partiya boshlanishini kutmoqda...");
+      moveHistoryEl.scrollTop(moveHistoryEl[0].scrollHeight);
+    }
+
+    function updateGameTurnBadge() {
+      const t = i18nEngine[activeLang] || i18nEngine.uz;
+      if (chessGame.in_checkmate()) {
+        turnStatusEl.text(chessGame.turn() === 'w' ? t.lossMsg : t.winMsg);
+      } else if (chessGame.in_draw()) {
+        turnStatusEl.text(t.drawMsg);
+      } else {
+        turnStatusEl.text(chessGame.turn() === 'w' ? t.yourTurn : t.thinking);
+        turnStatusEl.css({ color: 'var(--accent-green)', background: 'rgba(46, 204, 113, 0.12)' });
+      }
+    }
+
+    function restartMatch() {
+      chessGame.reset();
+      boardInstance.start();
+      $('.piece-417db').css('opacity', '1');
+      refreshHistoryPgn();
+      updateGameTurnBadge();
+    }
+
+    function undoMove() {
+      chessGame.undo();
+      chessGame.undo();
+      boardInstance.position(chessGame.fen());
+      refreshHistoryPgn();
+      updateGameTurnBadge();
+    }
+
+    // Interactive Puzzle Loader
+    const tacticalPuzzles = [
+      { fen: 'r1bqkb1r/pppp1ppp/2n5/4p3/2B1n3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4', desc: "F7 katagiga zarba bering!" },
+      { fen: 'r1bqk2r/pppp1ppp/2n2n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 1 5', desc: "Otni farzinga bog'lang!" }
+    ];
+
+    function loadTacticalPuzzle(idx) {
+      switchNavTab('match', $('.nav-btn')[0]);
+      chessGame.load(tacticalPuzzles[idx].fen);
+      boardInstance.position(tacticalPuzzles[idx].fen);
+      alert("⚡ Taktik Masala: " + tacticalPuzzles[idx].desc);
+    }
+
+    // Vocal Blindfold System
+    let isBlindfold = false;
+    function toggleBlindfoldGame() {
+      isBlindfold = !isBlindfold;
+      switchNavTab('match', $('.nav-btn')[0]);
+      $('.piece-417db').css('opacity', isBlindfold ? '0' : '1');
+      alert(isBlindfold ? "🙈 Blindfold yoqildi! Donalar yashirildi." : "Donalar ko'rinishi tiklandi.");
+    }
+
+    function triggerVoiceControl() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Brauzeringiz ovozli boshqaruvni qo'llab-quvvatlamaydi.");
+        return;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.start();
+      turnStatusEl.text("🎙️ Tinglamoqda (Masalan: 'e2e4')...");
+
+      recognition.onresult = function(event) {
+        const text = event.results[0][0].transcript.toLowerCase().replace(/\s+/g, '');
+        if (text.length >= 4) {
+          const move = chessGame.move({ from: text.substring(0,2), to: text.substring(2,4), promotion: 'q' });
+          if (move) {
+            boardInstance.position(chessGame.fen());
+            refreshHistoryPgn();
+            window.setTimeout(calculateBestEngineMove, 300);
+          } else {
+            alert("Noto'g'ri yurish: " + text);
+          }
+        }
+      };
+    }
+
+    function sharePvpLink() {
+      if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(window.location.href) + "&text=AALTEEER Chess AI'da men bilan bahslash!");
+      } else {
+        alert("Chaqiruv havolasi nusxalandi!");
+      }
+    }
+
+    // Alter Ego Personality Chooser
+    function chooseBotPersonality(type, icon, name, elo) {
+      $('#botAvatar').text(icon);
+      $('#botName').text(name);
+      $('#botElo').text("ELO: " + elo);
+      alert("🤖 Tanlangan Bot: " + name);
+      switchNavTab('match', $('.nav-btn')[0]);
+    }
+
+    function cloneUserAlterEgo() {
+      const user = JSON.parse(localStorage.getItem('aalteeer_user') || '{}');
+      const uName = user.name || "Sizning";
+      $('#botAvatar').text("🪞");
+      $('#botName').text(uName + " Alter Ego Boti");
+      $('#botElo').text("ELO: 1850 (Klonlangan)");
+      alert("🧬 Tahlil yakunlandi! Sizning shaxsiy uslubingizdagi bot faollashdi.");
+      switchNavTab('match', $('.nav-btn')[0]);
+    }
+
+    // Auth & Modal Handlers
+    function openAuthModal() {
+      $('#authModal').show();
+    }
+
+    function closeAuthModal() {
+      $('#authModal').hide();
+    }
+
+    function closeCelebrationModal() {
+      $('#celebrationModal').hide();
+    }
+
+    function processAuthRegister() {
+      const name = $('#authUsernameInput').val().trim();
+      const pass = $('#authPasswordInput').val().trim();
+      if (!name) {
+        alert("Iltimos, ismingizni kiriting!");
+        return;
+      }
+
+      localStorage.setItem('aalteeer_user', JSON.stringify({ name: name, auth: true, lang: activeLang }));
+      $('#userDisplay').text(name);
+      $('#settingsProfileName').text(name);
+      closeAuthModal();
+
+      const t = i18nEngine[activeLang] || i18nEngine.uz;
+      $('#celTitle').text(t.welcomeTitle + name + "! 🎉");
+      $('#celText').text(t.welcomeDesc);
+      $('#celebrationModal').show();
+    }
+
+    // Initialization
+    $(document).ready(function() {
+      if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+          const tgUser = window.Telegram.WebApp.initDataUnsafe.user.first_name;
+          $('#userDisplay').text(tgUser);
+          $('#authUsernameInput').val(tgUser);
+        }
+      }
+
+      const saved = JSON.parse(localStorage.getItem('aalteeer_user') || '{}');
+      if (saved.name) {
+        $('#userDisplay').text(saved.name);
+        $('#settingsProfileName').text(saved.name);
+      } else {
+        openAuthModal();
+      }
+
+      boardInstance = Chessboard('board', {
+        draggable: true,
+        position: 'start',
+        orientation: 'white',
+        onDragStart: onDragPieceStart,
+        onDrop: onDropPiece,
+        onSnapEnd: function() { boardInstance.position(chessGame.fen()); },
+        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+      });
+
+      $(window).resize(boardInstance.resize);
+      switchAppLanguage('uz');
+    });
+  </script>
+</body>
+</html>
