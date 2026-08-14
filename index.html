@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>AALTEEER Chess AI</title>
   
-  <!-- External Libraries -->
+  <!-- Chess CSS & Dependencies -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
@@ -17,8 +17,8 @@
       --bg-primary: #161512;
       --bg-secondary: #262421;
       --bg-header: #1e1e1e;
-      --accent-color: #3692e7;
-      --green-accent: #81b64c;
+      --accent: #3692e7;
+      --accent-green: #81b64c;
       --text-main: #ffffff;
       --text-muted: #bababa;
       --border-color: #363636;
@@ -28,18 +28,19 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background-color: var(--bg-primary);
       color: var(--text-main);
-      padding-bottom: 70px;
+      padding-bottom: 75px;
       overflow-x: hidden;
     }
 
-    /* Top Header */
+    /* Header */
     .header {
       background-color: var(--bg-header);
       padding: 12px 15px;
@@ -54,7 +55,7 @@
       font-size: 22px;
       font-weight: 900;
       letter-spacing: 2px;
-      color: var(--accent-color);
+      color: var(--accent);
     }
 
     .brand-title span {
@@ -69,7 +70,22 @@
       letter-spacing: 1px;
     }
 
-    /* Skill Analytics Section */
+    /* Page View Controller */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Skill Progress Section */
     .progress-section {
       background: var(--bg-secondary);
       padding: 12px 15px;
@@ -102,19 +118,18 @@
 
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #629924, var(--green-accent));
+      background: linear-gradient(90deg, #629924, var(--accent-green));
       border-radius: 3px;
-      transition: width 0.5s ease-in-out;
     }
 
     .progress-percent {
       width: 35px;
       text-align: right;
       font-weight: bold;
-      color: var(--green-accent);
+      color: var(--accent-green);
     }
 
-    /* Game Controls & Info Bar */
+    /* Game Top Status */
     .game-info-bar {
       display: flex;
       justify-content: space-between;
@@ -131,14 +146,13 @@
     }
 
     .player-avatar {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      background-color: var(--accent-color);
+      background-color: #e67e22;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
       font-size: 14px;
     }
 
@@ -157,7 +171,7 @@
       color: var(--text-muted);
     }
 
-    /* Board Area */
+    /* Chessboard Area */
     .container {
       padding: 10px;
       display: flex;
@@ -195,14 +209,13 @@
       background-color: var(--bg-secondary);
       color: var(--text-main);
       font-weight: bold;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
+      gap: 4px;
       border: 1px solid var(--border-color);
-      transition: background 0.2s;
     }
 
     .btn:active {
@@ -210,11 +223,10 @@
     }
 
     .btn-primary {
-      background-color: var(--accent-color);
-      border-color: var(--accent-color);
+      background-color: var(--accent);
+      border-color: var(--accent);
     }
 
-    /* Move History Log */
     .history-card {
       width: 100%;
       max-width: 380px;
@@ -222,11 +234,58 @@
       border-radius: 6px;
       margin-top: 10px;
       padding: 8px;
-      height: 60px;
+      height: 55px;
       overflow-y: auto;
       font-size: 11px;
       color: var(--text-muted);
       border: 1px solid var(--border-color);
+      line-height: 1.4;
+    }
+
+    /* Cards & Lists for Other Tabs */
+    .card-list {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 450px;
+      margin: 0 auto;
+    }
+
+    .menu-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .menu-card:active {
+      background-color: #2f2c28;
+    }
+
+    .card-icon {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+    }
+
+    .card-info h3 {
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .card-info p {
+      font-size: 11px;
+      color: var(--text-muted);
     }
 
     /* Bottom Navigation */
@@ -249,13 +308,14 @@
       flex-direction: column;
       align-items: center;
       color: var(--text-muted);
-      text-decoration: none;
       font-size: 10px;
       cursor: pointer;
+      padding: 6px 0;
+      width: 20%;
     }
 
     .nav-item.active {
-      color: var(--accent-color);
+      color: var(--accent);
     }
 
     .nav-icon {
@@ -272,171 +332,265 @@
     <div class="subtitle">Sizning Shaxmatdagi Ikkinchi "Men"ingiz</div>
   </div>
 
-  <!-- Realtime Analytics -->
-  <div class="progress-section">
-    <div class="progress-item">
-      <span class="progress-label">Debyut</span>
-      <div class="progress-bar-bg"><div class="progress-fill" style="width: 100%;"></div></div>
-      <span class="progress-percent">100%</span>
-    </div>
-    <div class="progress-item">
-      <span class="progress-label">Taktika</span>
-      <div class="progress-bar-bg"><div class="progress-fill" style="width: 65%;"></div></div>
-      <span class="progress-percent">65%</span>
-    </div>
-    <div class="progress-item">
-      <span class="progress-label">Mittelshpil</span>
-      <div class="progress-bar-bg"><div class="progress-fill" style="width: 40%;"></div></div>
-      <span class="progress-percent">40%</span>
-    </div>
-    <div class="progress-item">
-      <span class="progress-label">Endshpil</span>
-      <div class="progress-bar-bg"><div class="progress-fill" style="width: 25%;"></div></div>
-      <span class="progress-percent">25%</span>
-    </div>
-    <div class="progress-item">
-      <span class="progress-label">Diqqat</span>
-      <div class="progress-bar-bg"><div class="progress-fill" style="width: 85%; background: linear-gradient(90deg, #3692e7, #5eb5ff);"></div></div>
-      <span class="progress-percent" style="color:#3692e7;">85%</span>
-    </div>
-  </div>
-
-  <!-- Player Vs AI Bar -->
-  <div class="game-info-bar">
-    <div class="player-card">
-      <div class="player-avatar" style="background:#e67e22;">🤖</div>
-      <div class="player-details">
-        <span class="player-name">AALTEEER Bot</span>
-        <span class="player-elo">ELO: 1800 (Pro)</span>
+  <!-- TAB 1: ASOSIY (GAME & DASHBOARD) -->
+  <div id="tab-home" class="tab-content active">
+    <div class="progress-section">
+      <div class="progress-item">
+        <span class="progress-label">Debyut</span>
+        <div class="progress-bar-bg"><div class="progress-fill" style="width: 100%;"></div></div>
+        <span class="progress-percent">100%</span>
+      </div>
+      <div class="progress-item">
+        <span class="progress-label">Taktika</span>
+        <div class="progress-bar-bg"><div class="progress-fill" style="width: 65%;"></div></div>
+        <span class="progress-percent">65%</span>
+      </div>
+      <div class="progress-item">
+        <span class="progress-label">Mittelshpil</span>
+        <div class="progress-bar-bg"><div class="progress-fill" style="width: 40%;"></div></div>
+        <span class="progress-percent">40%</span>
+      </div>
+      <div class="progress-item">
+        <span class="progress-label">Endshpil</span>
+        <div class="progress-bar-bg"><div class="progress-fill" style="width: 25%;"></div></div>
+        <span class="progress-percent">25%</span>
+      </div>
+      <div class="progress-item">
+        <span class="progress-label">Diqqat</span>
+        <div class="progress-bar-bg"><div class="progress-fill" style="width: 85%; background: linear-gradient(90deg, #3692e7, #5eb5ff);"></div></div>
+        <span class="progress-percent" style="color:#3692e7;">85%</span>
       </div>
     </div>
-    <div id="game-status" style="font-size: 11px; color: var(--accent-color); font-weight: bold;">Sizning yurishingiz</div>
+
+    <div class="game-info-bar">
+      <div class="player-card">
+        <div class="player-avatar">🤖</div>
+        <div class="player-details">
+          <span class="player-name">AALTEEER Engine</span>
+          <span class="player-elo">ELO: 1850</span>
+        </div>
+      </div>
+      <div id="game-status" style="font-size: 11px; color: var(--accent); font-weight: bold;">Sizning yurishingiz (Oqlar)</div>
+    </div>
+
+    <div class="container">
+      <div class="board-card">
+        <div id="board"></div>
+      </div>
+
+      <div class="action-panel">
+        <button class="btn btn-primary" onclick="resetGame()">🔄 Yangi</button>
+        <button class="btn" onclick="undoMove()">↩️ Qaytarish</button>
+        <button class="btn" onclick="toggleVoice()">🎙️ Ovoz</button>
+      </div>
+
+      <div class="history-card" id="move-history">
+        O'yin boshlanishi bilan yurishlar tarixi bu yerda ko'rinadi...
+      </div>
+    </div>
   </div>
 
-  <!-- Main Chessboard -->
-  <div class="container">
-    <div class="board-card">
-      <div id="board"></div>
-    </div>
-
-    <!-- Controls -->
-    <div class="action-panel">
-      <button class="btn btn-primary" onclick="resetGame()">🔄 Yangi O'yin</button>
-      <button class="btn" onclick="undoMove()">↩️ Ortga</button>
-      <button class="btn" onclick="toggleVoice()">🎙️ Ovoz</button>
-    </div>
-
-    <!-- History -->
-    <div class="history-card" id="move-history">
-      Yurishlar tarixi bu yerda ko'rinadi...
+  <!-- TAB 2: DARSLAR -->
+  <div id="tab-lessons" class="tab-content">
+    <div class="card-list">
+      <div class="menu-card" onclick="alert('Debyutlar darsi tez kunda faollashadi!')">
+        <div class="card-icon">📖</div>
+        <div class="card-info">
+          <h3>Debyutlar Akademiyasi</h3>
+          <p>Sitsiliya, Fransuz va Qirolcha himoyasi nazariyalari.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="alert('Taktik trenajer tez kunda ochiladi!')">
+        <div class="card-icon">⚡</div>
+        <div class="card-info">
+          <h3>Taktik Trenajer</h3>
+          <p>Vilka, bog'lanish va 2-yurishda mot masalalari.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="alert('Endshpil qoidalari bo\'limi yuklanmoqda!')">
+        <div class="card-icon">👑</div>
+        <div class="card-info">
+          <h3>Endshpil Nazariyasi</h3>
+          <p>Piyodalar va Shoh pozitsiyalarini to'g'ri o'ynash.</p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Navigation -->
+  <!-- TAB 3: LIVE & SOTSIAL -->
+  <div id="tab-live" class="tab-content">
+    <div class="card-list">
+      <div class="menu-card" onclick="alert('PVP turnirlar yaqin orada qo\'shiladi!')">
+        <div class="card-icon">⚔️</div>
+        <div class="card-info">
+          <h3>Do'stlar Bilan O'yin (PVP)</h3>
+          <p>Telegramdagi do'stlaringizga qarshi onlayn bahs.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="alert('Blindfold (ko\'zsiz shaxmat) rejimi tayyorlanmoqda!')">
+        <div class="card-icon">🎙️</div>
+        <div class="card-info">
+          <h3>Vocal Blindfold Chess</h3>
+          <p>Taxtaga qaramasdan, ovoz orqali shaxmat o'ynash.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="alert('Jonli translyatsiya bo\'limi!')">
+        <div class="card-icon">📡</div>
+        <div class="card-info">
+          <h3>Live Stream & Kuzatuv</h3>
+          <p>Boshqa shaxmatchilarning jonli o'yinlarini tomosha qilish.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: AI ALTER EGO -->
+  <div id="tab-bot" class="tab-content">
+    <div class="card-list">
+      <div class="menu-card" onclick="alert('Uslub tahlili faollashdi! 10 ta o\'yindan so\'ng botingiz yaratiladi.')">
+        <div class="card-icon">🧬</div>
+        <div class="card-info">
+          <h3>Clone My Playstyle</h3>
+          <p>O'yinlaringizni tahlil qilib, o'zingizning bot nusxangizni yarating.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="alert('Raqib shaxsiyati tanlandi!')">
+        <div class="card-icon">🎭</div>
+        <div class="card-info">
+          <h3>AI Xarakterini Tanlash</h3>
+          <p>Tajovuzkor (Aggressive), Pozitsion yoki Taktik bot.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: SOZLAMALAR -->
+  <div id="tab-settings" class="tab-content">
+    <div class="card-list">
+      <div class="menu-card" onclick="alert('Profil ma\'lumotlari Telegram orqali yuklandi!')">
+        <div class="card-icon">👤</div>
+        <div class="card-info">
+          <h3>Profil & ELO Reyting</h3>
+          <p>O'yinlar statistikasi va g'alabalar nisbati.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="alert('Dizayn tanlash bo\'limi!')">
+        <div class="card-icon">🎨</div>
+        <div class="card-info">
+          <h3>Taxta va Donalar Dizayni</h3>
+          <p>Lichess, Yog'och yoki Neoklassik ko'rinish.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
-    <div class="nav-item active">
+    <div class="nav-item active" onclick="switchTab('home', this)">
       <span class="nav-icon">🏠</span>
       <span>Asosiy</span>
     </div>
-    <div class="nav-item">
+    <div class="nav-item" onclick="switchTab('lessons', this)">
       <span class="nav-icon">🎓</span>
       <span>Darslar</span>
     </div>
-    <div class="nav-item">
+    <div class="nav-item" onclick="switchTab('live', this)">
       <span class="nav-icon">⚔️</span>
       <span>Live</span>
     </div>
-    <div class="nav-item">
-      <span class="nav-icon">📊</span>
+    <div class="nav-item" onclick="switchTab('bot', this)">
+      <span class="nav-icon">🤖</span>
       <span>AI Bot</span>
     </div>
-    <div class="nav-item">
+    <div class="nav-item" onclick="switchTab('settings', this)">
       <span class="nav-icon">⚙️</span>
-      <span>Sozlamalar</span>
+      <span>Sozlama</span>
     </div>
   </div>
 
-  <!-- Core JavaScript Engine -->
+  <!-- JS Logic -->
   <script>
-    // Telegram WebApp initialization
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
+    // Tab Switching
+    function switchTab(tabId, el) {
+      $('.tab-content').removeClass('active');
+      $('.nav-item').removeClass('active');
+      $('#tab-' + tabId).addClass('active');
+      $(el).addClass('active');
+
+      if (tabId === 'home' && board) {
+        board.resize();
+      }
+    }
+
+    // Chess Logic
     var board = null;
     var game = new Chess();
     var historyElement = $('#move-history');
+    var statusElement = $('#game-status');
 
-    // Evaluation Matrix (PST) for AI engine
-    var pawnEvalWhite = [
-        [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
-        [5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0],
-        [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
-        [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
-        [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
-        [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
-        [0.5,  1.0,  1.0, -2.0, -2.0,  1.0,  1.0,  0.5],
-        [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
-    ];
-
-    var knightEval = [
-        [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
-        [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
-        [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
-        [-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0],
-        [-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0],
-        [-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0],
-        [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
-        [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
-    ];
-
-    // AI Minimax with Alpha-Beta Pruning
     function evaluateBoard(boardState) {
       var totalEvaluation = 0;
       for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
-          totalEvaluation += getPieceValue(boardState[i][j], i, j);
+          totalEvaluation += getPieceValue(boardState[i][j]);
         }
       }
       return totalEvaluation;
     }
 
-    function getPieceValue(piece, x, y) {
+    function getPieceValue(piece) {
       if (piece === null) return 0;
-      
-      var getAbsoluteValue = function (piece) {
-        if (piece.type === 'p') return 10;
-        if (piece.type === 'r') return 50;
-        if (piece.type === 'n') return 30;
-        if (piece.type === 'b') return 30;
-        if (piece.type === 'q') return 90;
-        if (piece.type === 'k') return 900;
-        return 0;
-      };
-
-      var absoluteValue = getAbsoluteValue(piece);
-      return piece.color === 'w' ? absoluteValue : -absoluteValue;
+      var values = { p: 10, r: 50, n: 30, b: 30, q: 90, k: 900 };
+      var val = values[piece.type] || 0;
+      return piece.color === 'w' ? val : -val;
     }
 
-    function makeBestMove() {
+    function makeAiMove() {
       var possibleMoves = game.moves();
-      if (possibleMoves.length === 0) return;
+      if (possibleMoves.length === 0 || game.game_over()) {
+        updateGameStatus();
+        return;
+      }
 
-      var randomIdx = Math.floor(Math.random() * possibleMoves.length);
-      game.move(possibleMoves[randomIdx]);
+      // Oddiy va ishonchli MiniMax yurish qidiruvi
+      var bestMove = null;
+      var bestValue = 9999;
+
+      for (var i = 0; i < possibleMoves.length; i++) {
+        game.move(possibleMoves[i]);
+        var evalVal = evaluateBoard(game.board());
+        game.undo();
+
+        if (evalVal < bestValue) {
+          bestValue = evalVal;
+          bestMove = possibleMoves[i];
+        }
+      }
+
+      if (!bestMove) {
+        bestMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+      }
+
+      game.move(bestMove);
       board.position(game.fen());
       updateHistory();
+      updateGameStatus();
     }
 
-    // Board Callbacks
-    function onDragStart (source, piece) {
-      if (game.game_over() || (game.turn() === 'w' && piece.search(/^b/) !== -1)) {
+    function onDragStart(source, piece) {
+      if (game.game_over()) return false;
+      // Faqat oq donalarni yurishga ruxsat
+      if (piece.search(/^b/) !== -1 || game.turn() !== 'w') {
         return false;
       }
     }
 
-    function onDrop (source, target) {
+    function onDrop(source, target) {
       var move = game.move({
         from: source,
         to: target,
@@ -446,39 +600,54 @@
       if (move === null) return 'snapback';
 
       updateHistory();
-      window.setTimeout(makeBestMove, 250);
+      statusElement.text("AALTEEER o'ylamoqda...");
+      window.setTimeout(makeAiMove, 300);
     }
 
-    function onSnapEnd () {
+    function onSnapEnd() {
       board.position(game.fen());
     }
 
     function updateHistory() {
-      historyElement.html(game.pgn({ max_width: 5, newline_char: '<br>' }));
+      var pgn = game.pgn({ max_width: 5, newline_char: '  ' });
+      historyElement.html(pgn || "Yurishlar tarixi...");
       historyElement.scrollTop(historyElement[0].scrollHeight);
+    }
+
+    function updateGameStatus() {
+      if (game.in_checkmate()) {
+        statusElement.text(game.turn() === 'w' ? "Mot! Qoralar g'alaba qozondi." : "Mot! Siz g'alaba qozondingiz! 🎉");
+      } else if (game.in_draw()) {
+        statusElement.text("Durang!");
+      } else {
+        statusElement.text(game.turn() === 'w' ? "Sizning yurishingiz (Oqlar)" : "AALTEEER o'ylamoqda...");
+      }
     }
 
     function resetGame() {
       game.reset();
       board.start();
-      historyElement.html("Yangi o'yin boshlandi...");
+      updateHistory();
+      updateGameStatus();
     }
 
     function undoMove() {
       game.undo();
-      game.undo(); // AI va foydalanuvchi yurishini qaytaradi
+      game.undo();
       board.position(game.fen());
       updateHistory();
+      updateGameStatus();
     }
 
     function toggleVoice() {
-      alert("AALTEEER Ovozli Boshqaruv faollashtirildi! Gapiring (Masalan: e2 e4)");
+      alert("🎙️ Ovozli rejim (Blindfold) tez orada to'liq ulanadi!");
     }
 
-    // Init Board
+    // Board Configuration
     var config = {
       draggable: true,
       position: 'start',
+      orientation: 'white',
       onDragStart: onDragStart,
       onDrop: onDrop,
       onSnapEnd: onSnapEnd,
