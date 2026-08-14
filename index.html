@@ -15,149 +15,96 @@
 </head>
 <body>
 
+  <!-- Top Bar -->
   <div class="top-header">
-    <div class="brand-box"><span>♟️</span> AALTEEER</div>
+    <div class="brand-box">
+      <div class="brand-logo">♟️</div>
+      <div class="brand-title">AALTEEER</div>
+    </div>
     <div class="header-actions">
-      <div class="user-badge" id="userBadgeEl" onclick="openAuthModal(true)">
+      <a href="auth.html" class="user-badge" id="userBadgeEl">
         <span>👤</span> <span id="userDisplayName">Hisob</span>
-      </div>
+      </a>
     </div>
   </div>
 
-  <!-- VIEW 1: MATCHBOARD -->
-  <div id="view-match" class="view-panel active">
+  <!-- Main Game Container -->
+  <div style="max-width: 440px; margin: 0 auto; padding: 12px 14px;">
+    
+    <!-- Skills Radar -->
     <div class="skills-card">
       <div class="skills-title">KO'NIKMALAR TAHLILI</div>
-      <div class="skill-row"><span>Debyut</span><div class="skill-track"><div class="skill-prog" style="width: 100%; background: var(--accent-gold);"></div></div><span>100%</span></div>
-      <div class="skill-row"><span>Taktika</span><div class="skill-track"><div class="skill-prog" style="width: 80%; background: var(--accent-cyan);"></div></div><span>80%</span></div>
-      <div class="skill-row"><span>Mittelshpil</span><div class="skill-track"><div class="skill-prog" style="width: 55%; background: var(--accent-green);"></div></div><span>55%</span></div>
-      <div class="skill-row"><span>Endshpil</span><div class="skill-track"><div class="skill-prog" style="width: 40%; background: #a855f7;"></div></div><span>40%</span></div>
-      <div class="skill-row"><span>Diqqat</span><div class="skill-track"><div class="skill-prog" style="width: 90%; background: var(--accent-red);"></div></div><span>90%</span></div>
+      <div class="skill-row">
+        <span>Debyut</span>
+        <div class="skill-track"><div class="skill-prog" style="width: 100%; background: var(--accent-gold);"></div></div>
+        <span style="color:var(--accent-gold);">100%</span>
+      </div>
+      <div class="skill-row">
+        <span>Taktika</span>
+        <div class="skill-track"><div class="skill-prog" style="width: 80%; background: var(--accent-cyan);"></div></div>
+        <span style="color:var(--accent-cyan);">80%</span>
+      </div>
+      <div class="skill-row">
+        <span>Mittelshpil</span>
+        <div class="skill-track"><div class="skill-prog" style="width: 55%; background: var(--accent-green);"></div></div>
+        <span style="color:var(--accent-green);">55%</span>
+      </div>
+      <div class="skill-row">
+        <span>Endshpil</span>
+        <div class="skill-track"><div class="skill-prog" style="width: 40%; background: #a855f7;"></div></div>
+        <span style="color:#a855f7;">40%</span>
+      </div>
+      <div class="skill-row">
+        <span>Diqqat</span>
+        <div class="skill-track"><div class="skill-prog" style="width: 90%; background: var(--accent-red);"></div></div>
+        <span style="color:var(--accent-red);">90%</span>
+      </div>
     </div>
 
+    <!-- Match Info -->
     <div class="match-meta-bar">
       <div class="opponent-box">
         <div class="opponent-avatar" id="botAvatar">🔥</div>
         <div>
-          <h4 id="botName">Tajovuzkor Bot (Tal)</h4>
-          <p id="botElo">Stockfish AI</p>
+          <h4 id="botName" style="font-size:13px; font-weight:800;">Tajovuzkor Bot (Tal)</h4>
+          <p id="botElo" style="font-size:11px; color:var(--text-muted);">Stockfish AI</p>
         </div>
       </div>
       <div class="game-status" id="gameTurnStatus">Sizning yurishingiz</div>
     </div>
 
-    <div class="board-container"><div id="board"></div></div>
+    <!-- Fixed Chessboard Frame -->
+    <div class="board-container">
+      <div id="board" style="width: 100%;"></div>
+    </div>
 
+    <!-- Action Controls -->
     <div class="controls-grid">
       <button class="btn btn-gold" onclick="restartMatch()">🔄 Yangi</button>
       <button class="btn" onclick="undoMove()">↩️ Qaytarish</button>
-      <button class="btn" id="voiceBtnEl" onclick="triggerVoiceControl()">🎙️ Ovoz</button>
+      <button class="btn" id="voiceBtnEl" onclick="toggleHandsFreeVoice()">🎙️ Ovoz</button>
     </div>
+
   </div>
 
-  <!-- VIEW 2: LESSONS -->
-  <div id="view-academy" class="view-panel">
-    <div style="margin-bottom:12px;">
-      <h2 style="font-size:16px; color:var(--accent-gold);">🎓 Shaxmat Akademiyasi</h2>
-      <p style="font-size:11px; color:var(--text-muted);">Bosqichma-bosqich o'rganing va testlardan o'ting.</p>
-    </div>
-    <div class="duo-roadmap" id="duoRoadmapContainer"></div>
-  </div>
-
-  <!-- VIEW 3: LIVE -->
-  <div id="view-social" class="view-panel">
-    <h2 style="font-size:16px; color:var(--accent-gold); margin-bottom:12px;">⚔️ Live & Vocal Blindfold</h2>
-    <div class="duo-node active-lesson" onclick="toggleBlindfoldGame()">
-      <div class="node-left">
-        <div class="node-icon">🙈</div>
-        <div>
-          <div class="node-title">Vocal Blindfold</div>
-          <div class="node-sub">Donalarsiz faqat ovozda o'ynang.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- VIEW 4: ALTER EGO -->
-  <div id="view-alterego" class="view-panel">
-    <h2 style="font-size:16px; color:var(--accent-gold); margin-bottom:12px;">🧬 AI Raqiblar (Stockfish)</h2>
-    <div class="duo-node active-lesson" onclick="chooseBot('🔥', 'Tajovuzkor Bot (Tal)', 12)" style="margin-bottom:10px;">
-      <div class="node-left">
-        <div class="node-icon">🔥</div>
-        <div>
-          <div class="node-title">Mikhail Tal (Tajovuzkor)</div>
-          <div class="node-sub">To'xtovsiz hujum va kombinatsiyalar.</div>
-        </div>
-      </div>
-    </div>
-    <div class="duo-node active-lesson" onclick="chooseBot('🛡️', 'Pozitsion Bot (Karpov)', 10)">
-      <div class="node-left">
-        <div class="node-icon">🛡️</div>
-        <div>
-          <div class="node-title">Anatoly Karpov (Pozitsion)</div>
-          <div class="node-sub">Mustahkam mudofaa va xatosiz o'yin.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- VIEW 5: SETTINGS -->
-  <div id="view-settings" class="view-panel">
-    <h2 style="font-size:16px; color:var(--accent-gold); margin-bottom:12px;">⚙️ Profil & Sozlamalar</h2>
-    <div class="duo-node active-lesson" onclick="openAuthModal(true)">
-      <div class="node-left">
-        <div class="node-icon">👤</div>
-        <div>
-          <div class="node-title" id="profTitle">Foydalanuvchi</div>
-          <div class="node-sub" id="profSub">Hisobni yangilash</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAVBAR -->
+  <!-- Fixed Bottom Navigation -->
   <div class="bottom-navbar">
-    <div class="nav-btn active" onclick="switchNavTab('match', this)"><span class="nav-btn-icon">♟️</span><span>Maydon</span></div>
-    <div class="nav-btn" onclick="switchNavTab('academy', this)"><span class="nav-btn-icon">🎬</span><span>Darslar</span></div>
-    <div class="nav-btn" onclick="switchNavTab('social', this)"><span class="nav-btn-icon">⚔️</span><span>Live</span></div>
-    <div class="nav-btn" onclick="switchNavTab('alterego', this)"><span class="nav-btn-icon">🧬</span><span>AI Bot</span></div>
-    <div class="nav-btn" onclick="switchNavTab('settings', this)"><span class="nav-btn-icon">⚙️</span><span>Sozlama</span></div>
-  </div>
-
-  <!-- MODALS -->
-  <div class="modal-overlay" id="authModal" style="display: none;">
-    <div class="modal-box">
-      <div style="font-size:40px; margin-bottom:8px;">♟️</div>
-      <h3 style="font-size:18px; color:var(--accent-gold); margin-bottom:6px;">AALTEEER Shaxmat AI</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Ro'yxatdan o'tish:</p>
-      <input type="text" id="authNameInput" class="input-field" placeholder="Ismingiz">
-      <input type="password" id="authPassInput" class="input-field" placeholder="Parol (Admin uchun maxfiy kod)">
-      <button class="btn btn-gold" style="width:100%;" onclick="processUserRegistration()">Kirish 🚀</button>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="adminLessonModal" style="display: none;">
-    <div class="modal-box">
-      <h3 style="font-size:16px; color:var(--accent-gold); margin-bottom:10px;" id="adminModalLessonTitle">Darsni Sozlash</h3>
-      <input type="text" id="lessonTopicTitle" class="input-field" placeholder="Mavzu nomi">
-      <input type="text" id="lessonTopicVideo" class="input-field" placeholder="Mavzu Videosi (YouTube Link)">
-      <input type="text" id="lessonOpeningVideo" class="input-field" placeholder="Debyut Videosi (YouTube Link)">
-      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="saveCurrentLessonData()">Saqlash 🚀</button>
-      <button class="btn" style="width:100%;" onclick="closeAdminLessonModal()">Yopish</button>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="userLessonViewModal" style="display: none;">
-    <div class="modal-box" style="max-height:90vh; overflow-y:auto;">
-      <h3 style="font-size:16px; color:var(--accent-gold); margin-bottom:10px;" id="uLessonTitle">Dars</h3>
-      <div id="uVideoSection" style="margin-bottom:12px;"></div>
-      <div style="background:#0d0c14; padding:12px; border-radius:12px; margin-bottom:12px; text-align:left;">
-        <div style="font-size:12px; font-weight:800; color:var(--accent-cyan); margin-bottom:6px;">🧠 AI Testi:</div>
-        <p style="font-size:12px; margin-bottom:10px;" id="uQuizQ"></p>
-        <div id="uQuizOptions"></div>
-      </div>
-      <button class="btn" style="width:100%;" onclick="closeUserLessonModal()">Yopish</button>
-    </div>
+    <a href="index.html" class="nav-item active">
+      <span class="nav-icon">♟️</span>
+      <span>Maydon</span>
+    </a>
+    <a href="lessons.html" class="nav-item">
+      <span class="nav-icon">🎬</span>
+      <span>Darslar</span>
+    </a>
+    <a href="alterego.html" class="nav-item">
+      <span class="nav-icon">🧬</span>
+      <span>AI Bot</span>
+    </a>
+    <a href="auth.html" class="nav-item">
+      <span class="nav-icon">👤</span>
+      <span>Profil</span>
+    </a>
   </div>
 
   <script src="app.js"></script>
