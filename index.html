@@ -3,452 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>AALTEEER Chess AI - Stockfish & Duolingo Edition</title>
+  <title>AALTEEER Chess AI</title>
   
-  <!-- Dependencies -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+  <link rel="stylesheet" href="style.css">
+  
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-  <style>
-    :root {
-      --bg-main: #0c0b10;
-      --bg-glass: rgba(22, 21, 30, 0.85);
-      --bg-card: #181722;
-      --accent-gold: #f5c563;
-      --accent-cyan: #00d2ff;
-      --accent-green: #00f2aa;
-      --accent-red: #ff3366;
-      --text-main: #ffffff;
-      --text-muted: #8a8899;
-      --border-glass: rgba(255, 255, 255, 0.08);
-      --border-gold: rgba(245, 197, 99, 0.4);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background: radial-gradient(circle at 50% 0%, #1a1829 0%, #0c0b10 100%);
-      color: var(--text-main);
-      min-height: 100vh;
-      padding-bottom: 85px;
-    }
-
-    /* Top Bar */
-    .top-header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--bg-glass);
-      backdrop-filter: blur(15px);
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-glass);
-    }
-
-    .brand-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: 1.5px;
-      color: var(--accent-gold);
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .lang-picker {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-main);
-      border: 1px solid var(--border-glass);
-      border-radius: 8px;
-      padding: 5px 8px;
-      font-size: 11px;
-      font-weight: 600;
-      outline: none;
-    }
-
-    .user-badge {
-      background: rgba(245, 197, 99, 0.1);
-      border: 1px solid var(--border-gold);
-      padding: 5px 10px;
-      border-radius: 16px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--accent-gold);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-    }
-
-    /* Views */
-    .view-panel {
-      display: none;
-      max-width: 440px;
-      margin: 0 auto;
-      padding: 12px 14px;
-      animation: fadeIn 0.25s ease-out;
-    }
-
-    .view-panel.active { display: block; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Skills Tracker */
-    .skills-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-glass);
-      border-radius: 16px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
-    }
-
-    .skill-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .skill-name { width: 75px; color: var(--text-muted); }
-    .skill-track {
-      flex: 1;
-      height: 6px;
-      background: #0d0c14;
-      border-radius: 4px;
-      margin: 0 10px;
-      overflow: hidden;
-    }
-
-    .skill-prog { height: 100%; border-radius: 4px; }
-
-    /* Match Info */
-    .match-meta-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--bg-card);
-      border: 1px solid var(--border-glass);
-      border-radius: 14px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-    }
-
-    .opponent-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .opponent-avatar {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      background: #252433;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-
-    .game-status {
-      font-size: 11px;
-      font-weight: 800;
-      padding: 6px 12px;
-      border-radius: 8px;
-      background: rgba(0, 242, 170, 0.12);
-      color: var(--accent-green);
-      border: 1px solid rgba(0, 242, 170, 0.3);
-    }
-
-    /* Fixed Perfect Chessboard */
-    .board-container {
-      background: #1e1d2b;
-      padding: 8px;
-      border-radius: 16px;
-      border: 1px solid var(--border-glass);
-      box-shadow: 0 12px 35px rgba(0,0,0,0.7);
-      margin-bottom: 12px;
-    }
-
-    #board {
-      width: 100%;
-      touch-action: none;
-    }
-
-    /* Buttons */
-    .controls-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .btn {
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      border: 1px solid var(--border-glass);
-      background: rgba(255,255,255,0.05);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-    }
-
-    .btn-gold {
-      background: var(--accent-gold);
-      color: #000;
-      border: none;
-    }
-
-    .btn-voice-active {
-      background: var(--accent-red) !important;
-      color: #fff !important;
-    }
-
-    /* Duolingo Style Lessons Roadmap */
-    .duo-roadmap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      margin-top: 10px;
-    }
-
-    .duo-node {
-      width: 100%;
-      background: var(--bg-card);
-      border: 1px solid var(--border-glass);
-      border-radius: 16px;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .duo-node.empty {
-      opacity: 0.75;
-      border-style: dashed;
-    }
-
-    .duo-node.active-lesson {
-      border-color: var(--accent-gold);
-      background: rgba(245, 197, 99, 0.06);
-      opacity: 1;
-    }
-
-    .node-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .node-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      background: #252433;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-    }
-
-    .node-title { font-size: 13px; font-weight: 800; }
-    .node-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
-    .node-status-badge {
-      font-size: 10px;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.06);
-      color: var(--text-muted);
-    }
-
-    /* Bottom Navbar */
-    .bottom-navbar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 65px;
-      background: var(--bg-glass);
-      backdrop-filter: blur(20px);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      border-top: 1px solid var(--border-glass);
-      z-index: 1000;
-    }
-
-    .nav-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: var(--text-muted);
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      width: 20%;
-    }
-
-    .nav-btn.active { color: var(--accent-gold); }
-    .nav-btn-icon { font-size: 20px; margin-bottom: 2px; }
-
-    /* Modals */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.88);
-      backdrop-filter: blur(10px);
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .modal-box {
-      background: #1a1926;
-      border: 1px solid var(--border-gold);
-      border-radius: 20px;
-      padding: 22px 18px;
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .input-field {
-      width: 100%;
-      background: #0d0c14;
-      border: 1px solid var(--border-glass);
-      border-radius: 10px;
-      padding: 12px;
-      color: #fff;
-      font-size: 13px;
-      margin-bottom: 10px;
-      outline: none;
-    }
-
-    .input-field:focus { border-color: var(--accent-gold); }
-
-    .quiz-opt-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border-glass);
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: left;
-      margin-bottom: 8px;
-    }
-
-    .quiz-opt-btn:hover { border-color: var(--accent-gold); }
-  </style>
 </head>
 <body>
 
-  <!-- Top Bar -->
   <div class="top-header">
-    <div class="brand-box">
-      <span>♟️</span> AALTEEER
-    </div>
+    <div class="brand-box"><span>♟️</span> AALTEEER</div>
     <div class="header-actions">
-      <select class="lang-picker" id="langSelector">
-        <option value="uz">UZ 🇺🇿</option>
-        <option value="ru">RU 🇷🇺</option>
-        <option value="en">EN 🇬🇧</option>
-      </select>
-      <div class="user-badge" id="userBadgeEl" onclick="openAuthOrAdmin()">
-        <span>👑</span> <span id="userDisplayName">Bekzod</span>
+      <div class="user-badge" id="userBadgeEl" onclick="openAuthModal(true)">
+        <span>👤</span> <span id="userDisplayName">Hisob</span>
       </div>
     </div>
   </div>
 
   <!-- VIEW 1: MATCHBOARD -->
   <div id="view-match" class="view-panel active">
-    <!-- Skills -->
     <div class="skills-card">
-      <div style="font-size:11px; color:var(--accent-gold); font-weight:800; margin-bottom:8px;">KO'NIKMALAR TAHLILI</div>
-      <div class="skill-row">
-        <span class="skill-name">Debyut</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 100%; background: var(--accent-gold);"></div></div>
-        <span style="color:var(--accent-gold);">100%</span>
-      </div>
-      <div class="skill-row">
-        <span class="skill-name">Taktika</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 80%; background: var(--accent-cyan);"></div></div>
-        <span style="color:var(--accent-cyan);">80%</span>
-      </div>
-      <div class="skill-row">
-        <span class="skill-name">Mittelshpil</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 55%; background: var(--accent-green);"></div></div>
-        <span style="color:var(--accent-green);">55%</span>
-      </div>
-      <div class="skill-row">
-        <span class="skill-name">Endshpil</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 40%; background: #a855f7;"></div></div>
-        <span style="color:#a855f7;">40%</span>
-      </div>
-      <div class="skill-row">
-        <span class="skill-name">Diqqat</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 90%; background: var(--accent-red);"></div></div>
-        <span style="color:var(--accent-red);">90%</span>
-      </div>
+      <div class="skills-title">KO'NIKMALAR TAHLILI</div>
+      <div class="skill-row"><span>Debyut</span><div class="skill-track"><div class="skill-prog" style="width: 100%; background: var(--accent-gold);"></div></div><span>100%</span></div>
+      <div class="skill-row"><span>Taktika</span><div class="skill-track"><div class="skill-prog" style="width: 80%; background: var(--accent-cyan);"></div></div><span>80%</span></div>
+      <div class="skill-row"><span>Mittelshpil</span><div class="skill-track"><div class="skill-prog" style="width: 55%; background: var(--accent-green);"></div></div><span>55%</span></div>
+      <div class="skill-row"><span>Endshpil</span><div class="skill-track"><div class="skill-prog" style="width: 40%; background: #a855f7;"></div></div><span>40%</span></div>
+      <div class="skill-row"><span>Diqqat</span><div class="skill-track"><div class="skill-prog" style="width: 90%; background: var(--accent-red);"></div></div><span>90%</span></div>
     </div>
 
-    <!-- Match Status -->
     <div class="match-meta-bar">
       <div class="opponent-box">
         <div class="opponent-avatar" id="botAvatar">🔥</div>
         <div>
-          <h4 style="font-size:13px;" id="botName">Tajovuzkor Bot (Tal)</h4>
-          <p style="font-size:11px; color:var(--text-muted);" id="botElo">Stockfish AI (Depth 12)</p>
+          <h4 id="botName">Tajovuzkor Bot (Tal)</h4>
+          <p id="botElo">Stockfish AI</p>
         </div>
       </div>
       <div class="game-status" id="gameTurnStatus">Sizning yurishingiz</div>
     </div>
 
-    <!-- Perfect Board Container -->
-    <div class="board-container">
-      <div id="board"></div>
-    </div>
+    <div class="board-container"><div id="board"></div></div>
 
-    <!-- Controls -->
     <div class="controls-grid">
       <button class="btn btn-gold" onclick="restartMatch()">🔄 Yangi</button>
       <button class="btn" onclick="undoMove()">↩️ Qaytarish</button>
@@ -456,19 +55,16 @@
     </div>
   </div>
 
-  <!-- VIEW 2: DUOLINGO STYLE LESSONS -->
+  <!-- VIEW 2: LESSONS -->
   <div id="view-academy" class="view-panel">
     <div style="margin-bottom:12px;">
-      <h2 style="font-size:16px; color:var(--accent-gold);">🎓 Shaxmat Akademiyasi (Duolingo Style)</h2>
-      <p style="font-size:11px; color:var(--text-muted);">Bosqichma-bosqich o'rganing va AI testlaridan o'ting.</p>
+      <h2 style="font-size:16px; color:var(--accent-gold);">🎓 Shaxmat Akademiyasi</h2>
+      <p style="font-size:11px; color:var(--text-muted);">Bosqichma-bosqich o'rganing va testlardan o'ting.</p>
     </div>
-
-    <div class="duo-roadmap" id="duoRoadmapContainer">
-      <!-- Dynamic Duolingo Lessons Rendered Here -->
-    </div>
+    <div class="duo-roadmap" id="duoRoadmapContainer"></div>
   </div>
 
-  <!-- VIEW 3: LIVE & BLINDFOLD -->
+  <!-- VIEW 3: LIVE -->
   <div id="view-social" class="view-panel">
     <h2 style="font-size:16px; color:var(--accent-gold); margin-bottom:12px;">⚔️ Live & Vocal Blindfold</h2>
     <div class="duo-node active-lesson" onclick="toggleBlindfoldGame()">
@@ -485,7 +81,7 @@
   <!-- VIEW 4: ALTER EGO -->
   <div id="view-alterego" class="view-panel">
     <h2 style="font-size:16px; color:var(--accent-gold); margin-bottom:12px;">🧬 AI Raqiblar (Stockfish)</h2>
-    <div class="duo-node active-lesson" onclick="chooseBot('🔥', 'Tajovuzkor Bot (Tal)', 12, 'aggressive')" style="margin-bottom:10px;">
+    <div class="duo-node active-lesson" onclick="chooseBot('🔥', 'Tajovuzkor Bot (Tal)', 12)" style="margin-bottom:10px;">
       <div class="node-left">
         <div class="node-icon">🔥</div>
         <div>
@@ -494,7 +90,7 @@
         </div>
       </div>
     </div>
-    <div class="duo-node active-lesson" onclick="chooseBot('🛡️', 'Pozitsion Bot (Karpov)', 10, 'solid')">
+    <div class="duo-node active-lesson" onclick="chooseBot('🛡️', 'Pozitsion Bot (Karpov)', 10)">
       <div class="node-left">
         <div class="node-icon">🛡️</div>
         <div>
@@ -508,430 +104,62 @@
   <!-- VIEW 5: SETTINGS -->
   <div id="view-settings" class="view-panel">
     <h2 style="font-size:16px; color:var(--accent-gold); margin-bottom:12px;">⚙️ Profil & Sozlamalar</h2>
-    <div class="duo-node active-lesson" onclick="openAuthModal()">
+    <div class="duo-node active-lesson" onclick="openAuthModal(true)">
       <div class="node-left">
         <div class="node-icon">👤</div>
         <div>
-          <div class="node-title" id="profTitle">Bekzod (Admin)</div>
-          <div class="node-sub" id="profSub">Grandmaster Creator</div>
+          <div class="node-title" id="profTitle">Foydalanuvchi</div>
+          <div class="node-sub" id="profSub">Hisobni yangilash</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Bottom Navbar -->
+  <!-- BOTTOM NAVBAR -->
   <div class="bottom-navbar">
-    <div class="nav-btn active" onclick="switchNavTab('match', this)">
-      <span class="nav-btn-icon">♟️</span>
-      <span>Maydon</span>
-    </div>
-    <div class="nav-btn" onclick="switchNavTab('academy', this)">
-      <span class="nav-btn-icon">🎬</span>
-      <span>Darslar</span>
-    </div>
-    <div class="nav-btn" onclick="switchNavTab('social', this)">
-      <span class="nav-btn-icon">⚔️</span>
-      <span>Live</span>
-    </div>
-    <div class="nav-btn" onclick="switchNavTab('alterego', this)">
-      <span class="nav-btn-icon">🧬</span>
-      <span>AI Bot</span>
-    </div>
-    <div class="nav-btn" onclick="switchNavTab('settings', this)">
-      <span class="nav-btn-icon">⚙️</span>
-      <span>Sozlama</span>
+    <div class="nav-btn active" onclick="switchNavTab('match', this)"><span class="nav-btn-icon">♟️</span><span>Maydon</span></div>
+    <div class="nav-btn" onclick="switchNavTab('academy', this)"><span class="nav-btn-icon">🎬</span><span>Darslar</span></div>
+    <div class="nav-btn" onclick="switchNavTab('social', this)"><span class="nav-btn-icon">⚔️</span><span>Live</span></div>
+    <div class="nav-btn" onclick="switchNavTab('alterego', this)"><span class="nav-btn-icon">🧬</span><span>AI Bot</span></div>
+    <div class="nav-btn" onclick="switchNavTab('settings', this)"><span class="nav-btn-icon">⚙️</span><span>Sozlama</span></div>
+  </div>
+
+  <!-- MODALS -->
+  <div class="modal-overlay" id="authModal" style="display: none;">
+    <div class="modal-box">
+      <div style="font-size:40px; margin-bottom:8px;">♟️</div>
+      <h3 style="font-size:18px; color:var(--accent-gold); margin-bottom:6px;">AALTEEER Shaxmat AI</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">Ro'yxatdan o'tish:</p>
+      <input type="text" id="authNameInput" class="input-field" placeholder="Ismingiz">
+      <input type="password" id="authPassInput" class="input-field" placeholder="Parol (Admin uchun maxfiy kod)">
+      <button class="btn btn-gold" style="width:100%;" onclick="processUserRegistration()">Kirish 🚀</button>
     </div>
   </div>
 
-  <!-- BEKZOD ADMIN LESSON EDITOR MODAL -->
   <div class="modal-overlay" id="adminLessonModal" style="display: none;">
     <div class="modal-box">
-      <div style="font-size:36px; margin-bottom:6px;">🎬</div>
-      <h3 style="font-size:16px; color:var(--accent-gold); margin-bottom:4px;" id="adminModalLessonTitle">1-Darsni Tahrirlash</h3>
-      <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Bekzod, mavzu va debyut videolarini joylang:</p>
-      
-      <input type="text" id="lessonTopicTitle" class="input-field" placeholder="Mavzu nomi (Masalan: Markazni egallash)">
-      <input type="text" id="lessonTopicVideo" class="input-field" placeholder="Mavzu Video Linki (YouTube Embed)">
-      <input type="text" id="lessonOpeningVideo" class="input-field" placeholder="Debyut Qismi Video Linki (YouTube Embed)">
-      
-      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="saveCurrentLessonData()">Saqlash & AI Testini Tuzish 🚀</button>
+      <h3 style="font-size:16px; color:var(--accent-gold); margin-bottom:10px;" id="adminModalLessonTitle">Darsni Sozlash</h3>
+      <input type="text" id="lessonTopicTitle" class="input-field" placeholder="Mavzu nomi">
+      <input type="text" id="lessonTopicVideo" class="input-field" placeholder="Mavzu Videosi (YouTube Link)">
+      <input type="text" id="lessonOpeningVideo" class="input-field" placeholder="Debyut Videosi (YouTube Link)">
+      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="saveCurrentLessonData()">Saqlash 🚀</button>
       <button class="btn" style="width:100%;" onclick="closeAdminLessonModal()">Yopish</button>
     </div>
   </div>
 
-  <!-- USER LESSON & AI QUIZ MODAL -->
   <div class="modal-overlay" id="userLessonViewModal" style="display: none;">
     <div class="modal-box" style="max-height:90vh; overflow-y:auto;">
       <h3 style="font-size:16px; color:var(--accent-gold); margin-bottom:10px;" id="uLessonTitle">Dars</h3>
-      
       <div id="uVideoSection" style="margin-bottom:12px;"></div>
-
       <div style="background:#0d0c14; padding:12px; border-radius:12px; margin-bottom:12px; text-align:left;">
-        <div style="font-size:12px; font-weight:800; color:var(--accent-cyan); margin-bottom:6px;">🧠 AI Duolingo Testi:</div>
+        <div style="font-size:12px; font-weight:800; color:var(--accent-cyan); margin-bottom:6px;">🧠 AI Testi:</div>
         <p style="font-size:12px; margin-bottom:10px;" id="uQuizQ"></p>
         <div id="uQuizOptions"></div>
       </div>
-
       <button class="btn" style="width:100%;" onclick="closeUserLessonModal()">Yopish</button>
     </div>
   </div>
 
-  <!-- AUTH MODAL -->
-  <div class="modal-overlay" id="authModal" style="display: none;">
-    <div class="modal-box">
-      <h3 style="font-size:16px; color:var(--accent-gold); margin-bottom:10px;">Hisobga Kirish</h3>
-      <input type="text" id="authNameInput" class="input-field" placeholder="Ismingiz (Masalan: Bekzod)">
-      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="saveUserAuth()">Kirish 🚀</button>
-      <button class="btn" style="width:100%;" onclick="closeAuthModal()">Yopish</button>
-    </div>
-  </div>
-
-  <script>
-    // ==========================================
-    // 1. ADMIN TEKSHIRUVI (BEKZOD)
-    // ==========================================
-    let isBekzodAdmin = false;
-
-    function checkAdmin() {
-      const tgUser = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) 
-        ? window.Telegram.WebApp.initDataUnsafe.user : null;
-      const tgUsername = tgUser && tgUser.username ? tgUser.username.toLowerCase() : "";
-
-      const saved = JSON.parse(localStorage.getItem('aalteeer_user') || '{}');
-      const localName = saved.name ? saved.name.toLowerCase().trim() : "";
-
-      if (tgUsername === "jovliyev_bekzod" || localName === "bekzod" || localName.startsWith("bekzod")) {
-        isBekzodAdmin = true;
-        $('#userDisplayName').text("Bekzod (Admin)");
-        $('#profTitle').text("Bekzod (Admin)");
-        $('#profSub').text("Grandmaster Creator");
-      } else {
-        isBekzodAdmin = false;
-        const name = saved.name || (tgUser ? tgUser.first_name : "Foydalanuvchi");
-        $('#userDisplayName').text(name);
-        $('#profTitle').text(name);
-        $('#profSub').text("Shaxmatchi");
-      }
-    }
-
-    function openAuthOrAdmin() {
-      if (!isBekzodAdmin) $('#authModal').show();
-      else alert("Siz Bekzod (Admin) sifatida tizimdasiz! Darslarni tahrirlash uchun Darslar bo'limiga o'ting.");
-    }
-
-    function saveUserAuth() {
-      const name = $('#authNameInput').val().trim();
-      if (!name) return alert("Ism kiriting!");
-      localStorage.setItem('aalteeer_user', JSON.stringify({ name: name }));
-      $('#authModal').hide();
-      checkAdmin();
-      renderDuolingoLessons();
-    }
-
-    function openAuthModal() { $('#authModal').show(); }
-    function closeAuthModal() { $('#authModal').hide(); }
-
-    // ==========================================
-    // 2. DUOLINGO STYLE LESSONS SYSTEM
-    // ==========================================
-    const DEFAULT_LESSONS_COUNT = 8;
-    let editingLessonId = 1;
-
-    function getLessonsStorage() {
-      return JSON.parse(localStorage.getItem('aalteeer_duo_lessons') || '{}');
-    }
-
-    function renderDuolingoLessons() {
-      const lessonsData = getLessonsStorage();
-      let html = '';
-
-      for (let i = 1; i <= DEFAULT_LESSONS_COUNT; i++) {
-        const lesson = lessonsData[i];
-        const isAdded = lesson && (lesson.topicVideo || lesson.openingVideo);
-
-        let titleText = `${i}-Dars`;
-        let subText = "Dars qo'shilmagan";
-        let statusBadge = `<span class="node-status-badge">🔒 Bo'sh</span>`;
-        let nodeClass = "duo-node empty";
-
-        if (isAdded) {
-          titleText = `${i}-Dars: ${lesson.topicTitle || 'Mavzu'}`;
-          subText = lesson.openingVideo ? "Mavzu & Debyut videosi mavjud" : "Mavzu videosi mavjud";
-          statusBadge = `<span class="node-status-badge" style="background:rgba(0,242,170,0.15); color:var(--accent-green);">✅ Tayyor</span>`;
-          nodeClass = "duo-node active-lesson";
-        }
-
-        html += `
-          <div class="${nodeClass}" onclick="handleLessonNodeClick(${i})">
-            <div class="node-left">
-              <div class="node-icon">${isAdded ? '⭐' : '📖'}</div>
-              <div>
-                <div class="node-title">${titleText}</div>
-                <div class="node-sub">${subText}</div>
-              </div>
-            </div>
-            ${statusBadge}
-          </div>
-        `;
-      }
-
-      $('#duoRoadmapContainer').html(html);
-    }
-
-    function handleLessonNodeClick(id) {
-      editingLessonId = id;
-      const lessonsData = getLessonsStorage();
-      const lesson = lessonsData[id];
-
-      if (isBekzodAdmin) {
-        // Admin tahrirlaydi
-        $('#adminModalLessonTitle').text(`${id}-Darsni Sozlash (Bekzod)`);
-        $('#lessonTopicTitle').val(lesson ? lesson.topicTitle : '');
-        $('#lessonTopicVideo').val(lesson ? lesson.topicVideo : '');
-        $('#lessonOpeningVideo').val(lesson ? lesson.openingVideo : '');
-        $('#adminLessonModal').show();
-      } else {
-        // Oddiy foydalanuvchi ko'radi
-        if (!lesson || (!lesson.topicVideo && !lesson.openingVideo)) {
-          alert(`${id}-dars hali Bekzod tomonidan yuklanmagan.`);
-          return;
-        }
-
-        $('#uLessonTitle').text(`${id}-Dars: ${lesson.topicTitle || ''}`);
-        let vHtml = '';
-        if (lesson.topicVideo) {
-          vHtml += `<div style="font-size:11px; color:var(--accent-gold); margin-bottom:4px; font-weight:700;">📺 Mavzu Videosi:</div>
-                    <iframe src="${lesson.topicVideo}" style="width:100%; height:160px; border-radius:10px; border:none; margin-bottom:10px;" allowfullscreen></iframe>`;
-        }
-        if (lesson.openingVideo) {
-          vHtml += `<div style="font-size:11px; color:var(--accent-gold); margin-bottom:4px; font-weight:700;">♟️ Debyut Qismi:</div>
-                    <iframe src="${lesson.openingVideo}" style="width:100%; height:160px; border-radius:10px; border:none; margin-bottom:10px;" allowfullscreen></iframe>`;
-        }
-        $('#uVideoSection').html(vHtml);
-
-        // AI Quiz
-        const quiz = lesson.quiz || generateBotQuiz(lesson.topicTitle || `${id}-Dars`);
-        $('#uQuizQ').text(quiz.q);
-        let optHtml = '';
-        quiz.options.forEach((opt, idx) => {
-          optHtml += `<button class="quiz-opt-btn" onclick="checkDuoAnswer(${idx}, ${quiz.correct})">${String.fromCharCode(65+idx)}) ${opt}</button>`;
-        });
-        $('#uQuizOptions').html(optHtml);
-
-        $('#userLessonViewModal').show();
-      }
-    }
-
-    function generateBotQuiz(topic) {
-      return {
-        q: `${topic} darsidagi asosiy strategik maqsad qaysi?`,
-        options: ["Markaziy kataklarni nazorat qilish va figuralarni faollashtirish", "Piyodalarni maqsadsiz oldinga surish", "Shohni himoyasiz qoldirish"],
-        correct: 0
-      };
-    }
-
-    function saveCurrentLessonData() {
-      const title = $('#lessonTopicTitle').val().trim();
-      const topicVid = $('#lessonTopicVideo').val().trim();
-      const openingVid = $('#lessonOpeningVideo').val().trim();
-
-      const lessonsData = getLessonsStorage();
-      lessonsData[editingLessonId] = {
-        topicTitle: title,
-        topicVideo: topicVid,
-        openingVideo: openingVid,
-        quiz: generateBotQuiz(title || `${editingLessonId}-Dars`)
-      };
-
-      localStorage.setItem('aalteeer_duo_lessons', JSON.stringify(lessonsData));
-      $('#adminLessonModal').hide();
-      renderDuolingoLessons();
-      alert(`✅ ${editingLessonId}-dars muvaffaqiyatli saqlandi va AI testi tuzildi!`);
-    }
-
-    function closeAdminLessonModal() { $('#adminLessonModal').hide(); }
-    function closeUserLessonModal() { $('#userLessonViewModal').hide(); }
-
-    function checkDuoAnswer(selected, correct) {
-      if (selected === correct) {
-        alert("🎉 Ajoyib! To'g'ri javob! +30 ELO");
-        closeUserLessonModal();
-      } else {
-        alert("❌ Noto'g'ri. Videoni qayta ko'rib chiqib, qayta urinib ko'ring!");
-      }
-    }
-
-    // ==========================================
-    // 3. STOCKFISH AI API INTEGRATION
-    // ==========================================
-    var board = null;
-    var game = new Chess();
-    let currentBotDepth = 12;
-    let currentBotStyle = 'aggressive';
-
-    function requestStockfishMove() {
-      const fen = game.fen();
-      $('#gameTurnStatus').text("AALTEEER o'ylamoqda...").css('color', 'var(--accent-gold)');
-
-      // Rasmiy Stockfish Online API
-      $.ajax({
-        url: `https://stockfish.online/api/s/v2.php?fen=${encodeURIComponent(fen)}&depth=${currentBotDepth}`,
-        type: 'GET',
-        dataType: 'json',
-        timeout: 4000,
-        success: function(data) {
-          if (data && data.success && data.bestmove) {
-            const moveParts = data.bestmove.split(' ')[1]; // "bestmove e7e5"
-            if (moveParts) {
-              const from = moveParts.substring(0, 2);
-              const to = moveParts.substring(2, 4);
-              const promo = moveParts.length === 5 ? moveParts.substring(4, 5) : 'q';
-              game.move({ from: from, to: to, promotion: promo });
-              board.position(game.fen());
-              checkGameStatus();
-              return;
-            }
-          }
-          fallbackLocalEngine();
-        },
-        error: function() {
-          fallbackLocalEngine();
-        }
-      });
-    }
-
-    function fallbackLocalEngine() {
-      const moves = game.moves();
-      if (moves.length === 0) return checkGameStatus();
-      const move = moves[Math.floor(Math.random() * moves.length)];
-      game.move(move);
-      board.position(game.fen());
-      checkGameStatus();
-    }
-
-    function onDragStart(source, piece) {
-      if (game.game_over()) return false;
-      if (piece.search(/^b/) !== -1 || game.turn() !== 'w') return false;
-    }
-
-    function onDrop(source, target) {
-      const move = game.move({ from: source, to: target, promotion: 'q' });
-      if (move === null) return 'snapback';
-      
-      checkGameStatus();
-      if (!game.game_over()) {
-        window.setTimeout(requestStockfishMove, 250);
-      }
-    }
-
-    function checkGameStatus() {
-      if (game.in_checkmate()) {
-        $('#gameTurnStatus').text(game.turn() === 'w' ? "Mot! Siz yutqazdingiz." : "Mot! Siz yutdingiz! 🎉").css('color', 'var(--accent-red)');
-      } else if (game.in_draw()) {
-        $('#gameTurnStatus').text("Durang!").css('color', 'var(--accent-cyan)');
-      } else {
-        $('#gameTurnStatus').text(game.turn() === 'w' ? "Sizning yurishingiz" : "AI o'ylamoqda...").css('color', 'var(--accent-green)');
-      }
-    }
-
-    function restartMatch() {
-      game.reset();
-      board.start();
-      $('.piece-417db').css('opacity', '1');
-      checkGameStatus();
-    }
-
-    function undoMove() {
-      game.undo();
-      game.undo();
-      board.position(game.fen());
-      checkGameStatus();
-    }
-
-    function chooseBot(avatar, name, depth, style) {
-      $('#botAvatar').text(avatar);
-      $('#botName').text(name);
-      $('#botElo').text(`Stockfish AI (Depth ${depth})`);
-      currentBotDepth = depth;
-      currentBotStyle = style;
-      alert(`🤖 Tanlandi: ${name}`);
-      switchNavTab('match', $('.nav-btn')[0]);
-    }
-
-    // ==========================================
-    // 4. O'ZBEKCHA OVOZLI TIZIM
-    // ==========================================
-    function triggerVoiceControl() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) return alert("Brauzeringizda ovozli boshqaruv mavjud emas.");
-
-      const rec = new SpeechRecognition();
-      rec.lang = 'uz-UZ';
-      rec.start();
-
-      $('#voiceBtnEl').addClass('btn-voice-active').html("🔴 Tinglanmoqda...");
-
-      rec.onresult = function(e) {
-        $('#voiceBtnEl').removeClass('btn-voice-active').html("🎙️ Ovoz");
-        const txt = e.results[0][0].transcript.toLowerCase().replace(/\s+/g, '');
-        const match = txt.match(/([a-h][1-8])([a-h][1-8])/);
-        if (match) {
-          const move = game.move({ from: match[1], to: match[2], promotion: 'q' });
-          if (move) {
-            board.position(game.fen());
-            checkGameStatus();
-            window.setTimeout(requestStockfishMove, 300);
-          } else {
-            alert(`Noto'g'ri yurish: ${match[1]}-${match[2]}`);
-          }
-        } else {
-          alert(`Eshitildi: "${e.results[0][0].transcript}". Masalan: "e2e4" deb ayting.`);
-        }
-      };
-
-      rec.onerror = function() { $('#voiceBtnEl').removeClass('btn-voice-active').html("🎙️ Ovoz"); };
-    }
-
-    // ==========================================
-    // 5. NAV & INIT
-    // ==========================================
-    function switchNavTab(tab, el) {
-      $('.view-panel').removeClass('active');
-      $('.nav-btn').removeClass('active');
-      $('#view-' + tab).addClass('active');
-      $(el).addClass('active');
-      if (tab === 'match' && board) board.resize();
-    }
-
-    let blindfold = false;
-    function toggleBlindfoldGame() {
-      blindfold = !blindfold;
-      switchNavTab('match', $('.nav-btn')[0]);
-      $('.piece-417db').css('opacity', blindfold ? '0' : '1');
-      alert(blindfold ? "🙈 Blindfold yoqildi!" : "Donalar tiklandi.");
-    }
-
-    $(document).ready(function() {
-      if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-      }
-
-      // To'g'ri taxta initsializatsiyasi
-      board = Chessboard('board', {
-        draggable: true,
-        position: 'start',
-        orientation: 'white',
-        onDragStart: onDragStart,
-        onDrop: onDrop,
-        onSnapEnd: function() { board.position(game.fen()); },
-        pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
-      });
-
-      $(window).resize(board.resize);
-      checkAdmin();
-      renderDuolingoLessons();
-    });
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
