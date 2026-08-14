@@ -1,1 +1,110 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AALTEEER - Kirish & Ro'yxatdan o'tish</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body style="display:flex; align-items:center; justify-content:center; padding:20px;">
 
+  <div class="modal-card" style="margin:auto;">
+    <div style="font-size:46px; margin-bottom:10px;">♟️</div>
+    <h2 style="font-size:22px; font-weight:900; color:var(--accent-gold); margin-bottom:6px;">AALTEEER AI</h2>
+    <p style="font-size:12px; color:var(--text-muted); line-height:1.4; margin-bottom:20px;">
+      Platformaga kirish uchun foydalanuvchi nomi va parolingizni belgilang:
+    </p>
+
+    <!-- Username Input -->
+    <div class="input-group">
+      <label class="input-label">Foydalanuvchi Nomi</label>
+      <input type="text" id="usernameInput" class="custom-input" placeholder="Masalan: bekzod_gm yoki shaxmatchi99">
+      <div class="error-hint" id="usernameError">Faqat harflar, raqamlar va _ (kamida 4 ta belgi) bo'lishi shart!</div>
+    </div>
+
+    <!-- Password Input -->
+    <div class="input-group">
+      <label class="input-label">Parol</label>
+      <input type="password" id="passwordInput" class="custom-input" placeholder="Kamida 4 ta belgi (••••••••)">
+      <div class="error-hint" id="passwordError">Parol kamida 4 ta belgidan iborat bo'lishi shart!</div>
+    </div>
+
+    <button class="btn btn-gold" style="width:100%; padding:14px; font-size:14px; margin-top:8px;" onclick="validateAndSubmitAuth()">
+      Platformaga Kirish 🚀
+    </button>
+  </div>
+
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+      if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+        const tg = window.Telegram.WebApp.initDataUnsafe.user;
+        if (tg.username) {
+          document.getElementById('usernameInput').value = tg.username;
+        } else if (tg.first_name) {
+          document.getElementById('usernameInput').value = tg.first_name.replace(/[^a-zA-Z0-9_]/g, '');
+        }
+      }
+    }
+
+    const ADMIN_SECRET_CODE = "bekzod2026";
+
+    function validateAndSubmitAuth() {
+      const uInput = document.getElementById('usernameInput');
+      const pInput = document.getElementById('passwordInput');
+      const uErr = document.getElementById('usernameError');
+      const pErr = document.getElementById('passwordError');
+
+      const username = uInput.value.trim();
+      const password = pInput.value.trim();
+
+      // Qat'iy Regex: faqat a-z, A-Z, 0-9 va _, kamida 4 ta belgi
+      const usernameRegex = /^[a-zA-Z0-9_]{4,20}$/;
+
+      let isValid = true;
+
+      if (!usernameRegex.test(username)) {
+        uErr.style.display = 'block';
+        uInput.style.borderColor = 'var(--accent-red)';
+        isValid = false;
+      } else {
+        uErr.style.display = 'none';
+        uInput.style.borderColor = 'var(--border-glass)';
+      }
+
+      if (password.length < 4) {
+        pErr.style.display = 'block';
+        pInput.style.borderColor = 'var(--accent-red)';
+        isValid = false;
+      } else {
+        pErr.style.display = 'none';
+        pInput.style.borderColor = 'var(--border-glass)';
+      }
+
+      if (!isValid) return;
+
+      // Bekzod Admin tekshiruvi
+      let isBekzodAdmin = false;
+      if (username.toLowerCase() === "bekzod" || username.toLowerCase().startsWith("bekzod_") || username.toLowerCase() === "jovliyev_bekzod") {
+        if (password === ADMIN_SECRET_CODE) {
+          isBekzodAdmin = true;
+        } else {
+          alert("⚠️ Diqqat: Bekzod admin hisobiga kirish uchun maxfiy admin paroli kiritilmadi. Oddiy o'yinchi sifatida kirdingiz.");
+        }
+      }
+
+      // Xotiraga saqlash
+      localStorage.setItem('aalteeer_user', JSON.stringify({
+        name: username,
+        isAdmin: isBekzodAdmin,
+        auth: true
+      }));
+
+      // Asosiy maydonga yo'naltirish
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
