@@ -1,1 +1,486 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AALTEEER Chess AI - Asosiy Maydon</title>
+  
+  <!-- CSS & Kutubxonalar -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+  <style>
+    :root {
+      --bg-primary: #12110f;
+      --bg-card: #1e1c18;
+      --accent: #3692e7;
+      --accent-green: #2ecc71;
+      --accent-orange: #e67e22;
+      --text-main: #ffffff;
+      --text-muted: #a0a0a0;
+      --border-color: #33312b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      padding-bottom: 85px;
+      overflow-x: hidden;
+    }
+
+    /* Yuqori Header */
+    .header {
+      background-color: var(--bg-card);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--accent);
+    }
+
+    .brand-title span { color: var(--text-main); }
+
+    .user-pill {
+      background: #2a2721;
+      border: 1px solid var(--border-color);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Raqib AI va Holat Paneli */
+    .game-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: #181714;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .player-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #2a2721;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .player-details h4 {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .player-details span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .status-indicator {
+      font-size: 11px;
+      color: var(--accent-green);
+      font-weight: bold;
+      background: rgba(46, 204, 113, 0.12);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(46, 204, 113, 0.25);
+    }
+
+    /* Shaxmat Maydoni */
+    .board-wrapper {
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .board-card {
+      background: var(--bg-card);
+      padding: 8px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    #board { width: 100%; }
+
+    /* Boshqaruv Tugmalari */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); }
+
+    /* Yurishlar Tarixi (Notatsiya) */
+    .history-box {
+      width: 100%;
+      max-width: 400px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin-top: 14px;
+      padding: 12px;
+      height: 60px;
+      overflow-y: auto;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Pastki Asosiy Navigatsiya (Har biri alohida faylni ochadi) */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 65px;
+      background-color: var(--bg-card);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      padding: 6px 0;
+      width: 20%;
+    }
+
+    .nav-item.active { color: var(--accent); }
+    .nav-icon { font-size: 20px; margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="header">
+    <div class="brand-title">AALTEEER <span>AI</span></div>
+    <div class="user-pill" id="userBadge">
+      <span>👤</span> <span id="userName">Foydalanuvchi</span>
+    </div>
+  </div>
+
+  <!-- Raqib Holati -->
+  <div class="game-meta-bar">
+    <div class="player-box">
+      <div class="avatar">🤖</div>
+      <div class="player-details">
+        <h4 id="botName">AALTEEER Engine</h4>
+        <span id="botElo">ELO: 1950 (Master)</span>
+      </div>
+    </div>
+    <div class="status-indicator" id="turnStatus">Sizning navbatingiz</div>
+  </div>
+
+  <!-- Taxta Maydoni -->
+  <div class="board-wrapper">
+    <div class="board-card">
+      <div id="board"></div>
+    </div>
+
+    <!-- O'yin Boshqaruvi -->
+    <div class="controls-grid">
+      <button class="btn btn-primary" id="btnRestart" onclick="restartMatch()">🔄 Yangi O'yin</button>
+      <button class="btn" id="btnUndo" onclick="undoMove()">↩️ Qaytarish</button>
+    </div>
+
+    <!-- Notatsiya -->
+    <div class="history-box" id="moveHistory">
+      Partiya boshlanishini kutmoqda...
+    </div>
+  </div>
+
+  <!-- Navigatsiya Menusi (Alohida Sahifalar) -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="location.reload()">
+      <span class="nav-icon">♟️</span>
+      <span id="navHome">Maydon</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='lessons.html'">
+      <span class="nav-icon">🎓</span>
+      <span id="navLessons">Darslar</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='live.html'">
+      <span class="nav-icon">⚔️</span>
+      <span id="navLive">Live</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='alter-ego.html'">
+      <span class="nav-icon">🤖</span>
+      <span id="navBot">AI Bot</span>
+    </div>
+    <div class="nav-item" onclick="window.location.href='settings.html'">
+      <span class="nav-icon">⚙️</span>
+      <span id="navSettings">Sozlama</span>
+    </div>
+  </div>
+
+  <!-- Skriptlar -->
+  <script>
+    // 1. Session va Til sozlamalarini yuklash
+    const savedUser = JSON.parse(localStorage.getItem('aalteeer_user') || '{}');
+    if (!savedUser.auth) {
+      window.location.href = 'auth.html';
+    }
+
+    const currentLang = savedUser.lang || 'uz';
+
+    const langDict = {
+      uz: {
+        yourTurn: "Sizning navbatingiz (Oqlar)",
+        thinking: "AALTEEER o'ylamoqda...",
+        whiteWon: "Mot! Siz yutdingiz! 🎉",
+        blackWon: "Mot! Qoralar g'alaba qozondi.",
+        draw: "Durang!",
+        btnRestart: "🔄 Yangi O'yin",
+        btnUndo: "↩️ Qaytarish",
+        waiting: "Partiya boshlanishini kutmoqda...",
+        navHome: "Maydon",
+        navLessons: "Darslar",
+        navLive: "Live",
+        navBot: "AI Bot",
+        navSettings: "Sozlama"
+      },
+      ru: {
+        yourTurn: "Ваш ход (Белые)",
+        thinking: "AALTEEER думает...",
+        whiteWon: "Мат! Вы победили! 🎉",
+        blackWon: "Мат! Черные победили.",
+        draw: "Ничья!",
+        btnRestart: "🔄 Новая игра",
+        btnUndo: "↩️ Ход назад",
+        waiting: "Ожидание начала партии...",
+        navHome: "Поле",
+        navLessons: "Уроки",
+        navLive: "Live",
+        navBot: "ИИ Бот",
+        navSettings: "Настройки"
+      },
+      en: {
+        yourTurn: "Your Turn (White)",
+        thinking: "AALTEEER is thinking...",
+        whiteWon: "Checkmate! You won! 🎉",
+        blackWon: "Checkmate! Black won.",
+        draw: "Draw!",
+        btnRestart: "🔄 New Game",
+        btnUndo: "↩️ Undo Move",
+        waiting: "Waiting for first move...",
+        navHome: "Board",
+        navLessons: "Lessons",
+        navLive: "Live",
+        navBot: "AI Bot",
+        navSettings: "Settings"
+      }
+    };
+
+    function applyTranslations() {
+      const t = langDict[currentLang];
+      document.getElementById('turnStatus').innerText = t.yourTurn;
+      document.getElementById('btnRestart').innerText = t.btnRestart;
+      document.getElementById('btnUndo').innerText = t.btnUndo;
+      document.getElementById('moveHistory').innerText = t.waiting;
+      document.getElementById('navHome').innerText = t.navHome;
+      document.getElementById('navLessons').innerText = t.navLessons;
+      document.getElementById('navLive').innerText = t.navLive;
+      document.getElementById('navBot').innerText = t.navBot;
+      document.getElementById('navSettings').innerText = t.navSettings;
+    }
+
+    applyTranslations();
+
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+      if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+        document.getElementById('userName').innerText = window.Telegram.WebApp.initDataUnsafe.user.first_name;
+      }
+    }
+
+    // 2. Shaxmat Dvigateli
+    var board = null;
+    var game = new Chess();
+    var historyElement = $('#moveHistory');
+    var statusElement = $('#turnStatus');
+
+    function evaluateBoard(boardState) {
+      var total = 0;
+      var values = { p: 10, r: 50, n: 30, b: 30, q: 90, k: 900 };
+      for (var i = 0; i < 8; i++) {
+        for (var j = 0; j < 8; j++) {
+          var piece = boardState[i][j];
+          if (piece) {
+            var val = values[piece.type] || 0;
+            total += (piece.color === 'w' ? val : -val);
+          }
+        }
+      }
+      return total;
+    }
+
+    function makeAiMove() {
+      var possibleMoves = game.moves();
+      if (possibleMoves.length === 0 || game.game_over()) {
+        checkGameOver();
+        return;
+      }
+
+      var bestMove = null;
+      var bestValue = 9999;
+
+      for (var i = 0; i < possibleMoves.length; i++) {
+        game.move(possibleMoves[i]);
+        var evalVal = evaluateBoard(game.board());
+        game.undo();
+        if (evalVal < bestValue) {
+          bestValue = evalVal;
+          bestMove = possibleMoves[i];
+        }
+      }
+
+      if (!bestMove) {
+        bestMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+      }
+
+      game.move(bestMove);
+      board.position(game.fen());
+      updateHistory();
+      checkGameOver();
+    }
+
+    function onDragStart(source, piece) {
+      if (game.game_over()) return false;
+      // Faqat oq donalarni yurishga ruxsat
+      if (piece.search(/^b/) !== -1 || game.turn() !== 'w') return false;
+    }
+
+    function onDrop(source, target) {
+      var move = game.move({ from: source, to: target, promotion: 'q' });
+      if (move === null) return 'snapback';
+
+      updateHistory();
+      const t = langDict[currentLang];
+      statusElement.text(t.thinking);
+      statusElement.css({ color: 'var(--accent-orange)', background: 'rgba(230, 126, 34, 0.12)', borderColor: 'rgba(230, 126, 34, 0.25)' });
+      window.setTimeout(makeAiMove, 300);
+    }
+
+    function onSnapEnd() {
+      board.position(game.fen());
+    }
+
+    function updateHistory() {
+      var pgn = game.pgn({ max_width: 5, newline_char: '  ' });
+      historyElement.html(pgn || langDict[currentLang].waiting);
+      historyElement.scrollTop(historyElement[0].scrollHeight);
+    }
+
+    function checkGameOver() {
+      const t = langDict[currentLang];
+      if (game.in_checkmate()) {
+        statusElement.text(game.turn() === 'w' ? t.blackWon : t.whiteWon);
+      } else if (game.in_draw()) {
+        statusElement.text(t.draw);
+      } else {
+        statusElement.text(game.turn() === 'w' ? t.yourTurn : t.thinking);
+        statusElement.css({ color: 'var(--accent-green)', background: 'rgba(46, 204, 113, 0.12)', borderColor: 'rgba(46, 204, 113, 0.25)' });
+      }
+    }
+
+    function restartMatch() {
+      game.reset();
+      board.start();
+      updateHistory();
+      checkGameOver();
+    }
+
+    function undoMove() {
+      game.undo();
+      game.undo();
+      board.position(game.fen());
+      updateHistory();
+      checkGameOver();
+    }
+
+    // Taxta konfiguratsiyasi
+    var config = {
+      draggable: true,
+      position: 'start',
+      orientation: 'white',
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onSnapEnd: onSnapEnd,
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+    };
+
+    board = Chessboard('board', config);
+    $(window).resize(board.resize);
+  </script>
+</body>
+</html>
