@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AALTEEER - Shaxmat Akademiyasi</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+  <!-- Top Glass Header -->
+  <div class="top-header">
+    <div class="brand-box">
+      <div class="brand-logo">🎓</div>
+      <div class="brand-title">AKADEMIYA</div>
+    </div>
+    <div class="header-actions">
+      <div class="user-badge" id="userTierBadge" onclick="startPlacementTest(true)">
+        <span>⚡</span> <span id="tierTitleDisplay">Daraja: Aniqlanmagan</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Division / Tier Switcher -->
+  <div style="display:flex; justify-content:center; gap:10px; margin: 16px 14px 0 14px;">
+    <button class="btn btn-gold" id="tabTier1Btn" style="flex:1; padding:10px;" onclick="switchDivision(1)">
+      1-Toifa (1.1 - 1.10)
+    </button>
+    <button class="btn" id="tabTier2Btn" style="flex:1; padding:10px;" onclick="switchDivision(2)">
+      2-Toifa (2.1 - 2.10) 🔒
+    </button>
+  </div>
+
+  <!-- Duolingo Zigzag Container -->
+  <div class="duo-container">
+    <svg class="duo-rope-svg" id="duoRopeSvg">
+      <path class="duo-rope-path" id="duoRopePath" d=""></path>
+    </svg>
+
+    <div class="duo-nodes-wrapper" id="nodesContainer">
+      <!-- 10 ta dars tugmalari JavaScript orqali joylanadi -->
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-navbar">
+    <a href="index.html" class="nav-item">
+      <span class="nav-icon">♟️</span>
+      <span>Maydon</span>
+    </a>
+    <a href="lessons.html" class="nav-item active">
+      <span class="nav-icon">🎬</span>
+      <span>Darslar</span>
+    </a>
+    <a href="alterego.html" class="nav-item">
+      <span class="nav-icon">🧬</span>
+      <span>AI Bot</span>
+    </a>
+    <a href="auth.html" class="nav-item">
+      <span class="nav-icon">👤</span>
+      <span>Profil</span>
+    </a>
+  </div>
+
+  <!-- 1. PLACEMENT TEST MODAL (Darajani Aniqlash Testi) -->
+  <div class="modal-overlay" id="placementModal" style="display:none;">
+    <div class="modal-card" style="max-width:400px;">
+      <div style="font-size:42px; margin-bottom:8px;">🧠</div>
+      <h3 style="color:var(--accent-gold); font-size:18px; margin-bottom:4px;">AI Darajani Aniqlash Testi</h3>
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:16px;" id="placementStepText">Savol 1 / 5</p>
+
+      <div style="background:#0b0a12; border:1px solid var(--border-glass); border-radius:14px; padding:14px; margin-bottom:14px; text-align:left;">
+        <p style="font-size:13px; color:#fff; line-height:1.4;" id="placementQuestion"></p>
+      </div>
+
+      <div id="placementOptionsContainer"></div>
+    </div>
+  </div>
+
+  <!-- 2. BEKZOD ADMIN DARS SOZLASH MODALI -->
+  <div class="modal-overlay" id="adminEditModal" style="display:none;">
+    <div class="modal-card">
+      <div style="font-size:36px; margin-bottom:6px;">👑</div>
+      <h3 style="color:var(--accent-gold); font-size:17px; margin-bottom:4px;" id="adminEditTitle">Darsni Sozlash</h3>
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">Mavzu va debyut video havolalarini kiriting:</p>
+
+      <div class="input-group">
+        <label class="input-label">Mavzu Nomi</label>
+        <input type="text" id="inTopicTitle" class="custom-input" placeholder="Masalan: Markazni Nazorat Qilish">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Mavzu Videosi (YouTube Link)</label>
+        <input type="text" id="inTopicVideo" class="custom-input" placeholder="https://youtube.com/watch?v=...">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Debyut Videosi (YouTube Link)</label>
+        <input type="text" id="inOpeningVideo" class="custom-input" placeholder="https://youtube.com/watch?v=...">
+      </div>
+
+      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="saveLessonByAdmin()">
+        Saqlash & AI Testini Generatsiya Qilish 🚀
+      </button>
+      <button class="btn" style="width:100%;" onclick="closeAdminEditModal()">Yopish</button>
+    </div>
+  </div>
+
+  <!-- 3. O'QUVCHI UCHUN DARS & AI QUIZ MODALI -->
+  <div class="modal-overlay" id="userStudyModal" style="display:none;">
+    <div class="modal-card" style="max-height:90vh; overflow-y:auto;">
+      <h3 style="color:var(--accent-gold); font-size:17px; margin-bottom:10px;" id="studyLessonTitle">1.1-Dars</h3>
+      
+      <div id="studyVideosWrapper" style="margin-bottom:12px;"></div>
+
+      <div style="background:#0b0a12; border:1px solid var(--border-glass); border-radius:14px; padding:14px; text-align:left; margin-bottom:14px;">
+        <div style="font-size:11px; font-weight:800; color:var(--accent-cyan); margin-bottom:6px;">🧠 AI Taktika Savoli:</div>
+        <p style="font-size:13px; color:#fff; margin-bottom:12px;" id="studyQuizQuestion"></p>
+        <div id="studyQuizOptions"></div>
+      </div>
+
+      <button class="btn" style="width:100%;" onclick="closeUserStudyModal()">Yopish</button>
+    </div>
+  </div>
+
+  <script>
+    // 1. Auth & Admin holati
+    const userSession = JSON.parse(localStorage.getItem('aalteeer_user') || '{}');
+    if (!userSession.auth) {
+      window.location.href = 'auth.html';
+    }
+
+    const isBekzodAdmin = !!userSession.isAdmin;
+    let currentDivision = 1; // 1-toifa yoki 2-toifa
+    let selectedLessonKey = "1.1";
+
+    // 2. Darajani aniqlash testi savollari (5 ta savol)
+    const placementQuestions = [
+      {
+        q: "1. Shaxmat partiyasi boshida dastlab qaysi figuralarni o'yinga kiritish eng maqbul strategiya hisoblanadi?",
+        opts: ["Yengil figuralar (Ot va Fil)", "Og'ir figuralar (Rux va Farzin)", "Faqat chetdagi piyodalar"],
+        c: 0
+      },
+      {
+        q: "2. 'Sitsiliya himoyasi' (1. e4 c5) debyutida qoralarning asosiy strategik g'oyasi nima?",
+        opts: ["Markazdagi d4 katagiga qarshi zarba berish va yarim ochiq 'c' vertikalini ochish", "Shohni tezda himoyasiz qoldirish", "Faqat durang uchun o'ynash"],
+        c: 0
+      },
+      {
+        q: "3. 'Vilka' (Fork) taktik zarbasi nima?",
+        opts: ["Bitta figura bilan bir vaqtning o'zida ikkita yoki undan ortiq raqib figurasiga xavf solish", "Shohni doska burchagiga qamab qo'yish", "Farzinni qurbon qilish"],
+        c: 0
+      },
+      {
+        q: "4. O'yin so'ngida (Endshpil) shohning asosiy vazifasi nima?",
+        opts: ["Faollashib, markazga chiqish va o'z o'tkinchi piyodalarini himoya qilish", "Burchakda bekinib turish", "Raqib donalariga e'tibor bermaslik"],
+        c: 0
+      },
+      {
+        q: "5. 'Bog'lanish' (Pin) paytida bog'langan figura qanday holatga tushadi?",
+        opts: ["U harakatlana olmaydi yoki yursa uning orqasidagi qimmatli figura yo'qotiladi", "Qo'shimcha yurish imkoniyatiga ega bo'ladi", "Dona doskadan olinadi"],
+        c: 0
+      }
+    ];
+
+    let placementIndex = 0;
+    let placementScore = 0;
+
+    function checkPlacementStatus() {
+      const userLevel = localStorage.getItem('aalteeer_user_tier');
+      if (!userLevel && !isBekzodAdmin) {
+        startPlacementTest(false);
+      } else {
+        updateTierDisplay(userLevel || "1");
+      }
+    }
+
+    function startPlacementTest(isManual) {
+      placementIndex = 0;
+      placementScore = 0;
+      $('#placementModal').show();
+      renderPlacementQuestion();
+    }
+
+    function renderPlacementQuestion() {
+      const qObj = placementQuestions[placementIndex];
+      $('#placementStepText').text(`Savol ${placementIndex + 1} / ${placementQuestions.length}`);
+      $('#placementQuestion').text(qObj.q);
+
+      let optsHtml = '';
+      qObj.opts.forEach((opt, idx) => {
+        optsHtml += `<button class="quiz-opt-btn" onclick="answerPlacement(${idx})">${String.fromCharCode(65 + idx)}) ${opt}</button>`;
+      });
+      $('#placementOptionsContainer').html(optsHtml);
+    }
+
+    function answerPlacement(selectedIdx) {
+      if (selectedIdx === placementQuestions[placementIndex].c) {
+        placementScore++;
+      }
+      placementIndex++;
+      if (placementIndex < placementQuestions.length) {
+        renderPlacementQuestion();
+      } else {
+        finishPlacementTest();
+      }
+    }
+
+    function finishPlacementTest() {
+      $('#placementModal').hide();
+      let assignedTier = "1";
+      let msg = "";
+
+      if (placementScore >= 4) {
+        assignedTier = "2";
+        msg = `🎉 Ajoyib natija (${placementScore}/5)! Siz Professional darajadasiz va to'g'ridan-to'g'ri 2-Toifaga qabul qilindingiz!`;
+      } else {
+        assignedTier = "1";
+        msg = `👍 Yaxshi natija (${placementScore}/5)! Siz 1-Toifadan (Asoslardan) boshlaysiz.`;
+      }
+
+      localStorage.setItem('aalteeer_user_tier', assignedTier);
+      updateTierDisplay(assignedTier);
+      alert(msg);
+    }
+
+    function updateTierDisplay(tier) {
+      if (tier === "2") {
+        $('#tierTitleDisplay').text("2-Toifa (Professional)");
+        $('#tabTier2Btn').text("2-Toifa (2.1 - 2.10)");
+        $('#tabTier2Btn').removeClass('btn-gold').addClass('btn-gold');
+        $('#tabTier1Btn').removeClass('btn-gold');
+        currentDivision = 2;
+      } else {
+        $('#tierTitleDisplay').text("1-Toifa (Grandmaster Asoslari)");
+        $('#tabTier1Btn').addClass('btn-gold');
+        $('#tabTier2Btn').removeClass('btn-gold');
+        currentDivision = 1;
+      }
+      renderDuolingoNodes();
+    }
+
+    function switchDivision(divNum) {
+      const userTier = localStorage.getItem('aalteeer_user_tier') || "1";
+      if (divNum === 2 && userTier !== "2" && !isBekzodAdmin) {
+        alert("🔒 2-Toifa qulflangan! 1-Toifadagi barcha darslarni tugating yoki Darajani aniqlash testini qayta topshiring.");
+        return;
+      }
+      currentDivision = divNum;
+      if (divNum === 1) {
+        $('#tabTier1Btn').addClass('btn-gold');
+        $('#tabTier2Btn').removeClass('btn-gold');
+      } else {
+        $('#tabTier2Btn').addClass('btn-gold');
+        $('#tabTier1Btn').removeClass('btn-gold');
+      }
+      renderDuolingoNodes();
+    }
+
+    // 3. YouTube havolasini avtomatik to'g'rilash
+    function formatEmbedUrl(url) {
+      if (!url) return '';
+      let videoId = '';
+      if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+      else if (url.includes('watch?v=')) videoId = url.split('watch?v=')[1].split('&')[0];
+      else if (url.includes('embed/')) return url;
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+    }
+
+    // 4. Darslar bazasi va Zigzag UI chizish
+    function getLessonsDB() {
+      return JSON.parse(localStorage.getItem('aalteeer_lessons_db') || '{}');
+    }
+
+    function renderDuolingoNodes() {
+      const db = getLessonsDB();
+      const userProgress = JSON.parse(localStorage.getItem('aalteeer_user_progress') || '[]');
+      const container = $('#nodesContainer');
+      container.empty();
+
+      const positions = ['pos-center', 'pos-left', 'pos-center', 'pos-right', 'pos-center', 'pos-left', 'pos-center', 'pos-right', 'pos-center', 'pos-left'];
+
+      for (let i = 1; i <= 10; i++) {
+        const lessonKey = `${currentDivision}.${i}`;
+        const lessonData = db[lessonKey];
+        const isAdded = lessonData && (lessonData.topicVideo || lessonData.openingVideo);
+        const isCompleted = userProgress.includes(lessonKey);
+
+        let btnClass = "duo-circle-btn locked";
+        let icon = "🔒";
+
+        if (isBekzodAdmin) {
+          btnClass = isAdded ? "duo-circle-btn active" : "duo-circle-btn";
+          icon = isAdded ? "⭐" : "➕";
+        } else {
+          if (isCompleted) {
+            btnClass = "duo-circle-btn completed";
+            icon = "✅";
+          } else if (isAdded) {
+            btnClass = "duo-circle-btn active";
+            icon = "⭐";
+          }
+        }
+
+        const posClass = positions[i - 1];
+
+        const nodeHtml = `
+          <div class="${btnClass} ${posClass}" onclick="handleNodeClick('${lessonKey}')">
+            ${isCompleted ? '<span class="duo-crown">👑</span>' : ''}
+            <span class="duo-icon">${icon}</span>
+            <span class="duo-label">${lessonKey}-Dars</span>
+          </div>
+        `;
+        container.append(nodeHtml);
+      }
+
+      // Arqonni dinamik chizish
+      setTimeout(drawDuolingoRope, 100);
+    }
+
+    function drawDuolingoRope() {
+      const nodes = document.querySelectorAll('.duo-circle-btn');
+      if (nodes.length < 2) return;
+
+      const svg = document.getElementById('duoRopeSvg');
+      const path = document.getElementById('duoRopePath');
+      const containerRect = document.querySelector('.duo-container').getBoundingClientRect();
+
+      let d = '';
+
+      nodes.forEach((node, idx) => {
+        const rect = node.getBoundingClientRect();
+        const x = rect.left + rect.width / 2 - containerRect.left;
+        const y = rect.top + rect.height / 2 - containerRect.top;
+
+        if (idx === 0) {
+          d += `M ${x} ${y}`;
+        } else {
+          const prevRect = nodes[idx - 1].getBoundingClientRect();
+          const prevX = prevRect.left + prevRect.width / 2 - containerRect.left;
+          const prevY = prevRect.top + prevRect.height / 2 - containerRect.top;
+          const midY = (prevY + y) / 2;
+          d += ` C ${prevX} ${midY}, ${x} ${midY}, ${x} ${y}`;
+        }
+      });
+
+      path.setAttribute('d', d);
+      svg.style.height = document.querySelector('.duo-container').scrollHeight + 'px';
+    }
+
+    // 5. Tugmalar bosilganda Admin yoki O'quvchi oynasini ochish
+    function handleNodeClick(key) {
+      selectedLessonKey = key;
+      const db = getLessonsDB();
+      const lesson = db[key];
+
+      if (isBekzodAdmin) {
+        $('#adminEditTitle').text(`Darsni Sozlash: ${key}-Dars`);
+        $('#inTopicTitle').val(lesson ? lesson.topicTitle : '');
+        $('#inTopicVideo').val(lesson ? lesson.topicVideo : '');
+        $('#inOpeningVideo').val(lesson ? lesson.openingVideo : '');
+        $('#adminEditModal').show();
+      } else {
+        if (!lesson || (!lesson.topicVideo && !lesson.openingVideo)) {
+          alert(`${key}-dars hali Bekzod tomonidan joylanmagan.`);
+          return;
+        }
+
+        $('#studyLessonTitle').text(`${key}-Dars: ${lesson.topicTitle || 'Mavzu'}`);
+
+        let vHtml = '';
+        if (lesson.topicVideo) {
+          vHtml += `<div style="font-size:11px; color:var(--accent-gold); margin-bottom:4px; font-weight:800;">📺 1. Mavzu Videosi:</div>
+                    <iframe src="${formatEmbedUrl(lesson.topicVideo)}" style="width:100%; height:170px; border-radius:12px; border:none; margin-bottom:12px;" allowfullscreen></iframe>`;
+        }
+        if (lesson.openingVideo) {
+          vHtml += `<div style="font-size:11px; color:var(--accent-gold); margin-bottom:4px; font-weight:800;">♟️ 2. Debyut Tahlili:</div>
+                    <iframe src="${formatEmbedUrl(lesson.openingVideo)}" style="width:100%; height:170px; border-radius:12px; border:none; margin-bottom:12px;" allowfullscreen></iframe>`;
+        }
+        $('#studyVideosWrapper').html(vHtml);
+
+        // AI Quiz
+        const quiz = lesson.quiz || generateBotQuiz(lesson.topicTitle || `${key}-Dars`);
+        $('#studyQuizQuestion').text(quiz.q);
+
+        let optHtml = '';
+        quiz.options.forEach((opt, idx) => {
+          optHtml += `<button class="quiz-opt-btn" onclick="submitLessonQuizAnswer(${idx}, ${quiz.correct})">${String.fromCharCode(65 + idx)}) ${opt}</button>`;
+        });
+        $('#studyQuizOptions').html(optHtml);
+
+        $('#userStudyModal').show();
+      }
+    }
+
+    function generateBotQuiz(topic) {
+      return {
+        q: `${topic} mavzusi bo'yicha eng muhim strategik qoida qaysi?`,
+        options: ["Markazni nazorat qilish va faol hujum rejasini tuzish", "Shohni himoyasiz qoldirish", "Piyodalarni maqsadsiz oldinga surish"],
+        correct: 0
+      };
+    }
+
+    function saveLessonByAdmin() {
+      const topic = $('#inTopicTitle').val().trim();
+      const topVid = $('#inTopicVideo').val().trim();
+      const opnVid = $('#inOpeningVideo').val().trim();
+
+      const db = getLessonsDB();
+      db[selectedLessonKey] = {
+        topicTitle: topic,
+        topicVideo: topVid,
+        openingVideo: opnVid,
+        quiz: generateBotQuiz(topic || `${selectedLessonKey}-Dars`)
+      };
+
+      localStorage.setItem('aalteeer_lessons_db', JSON.stringify(db));
+      $('#adminEditModal').hide();
+      renderDuolingoNodes();
+      alert(`✅ ${selectedLessonKey}-dars muvaffaqiyatli saqlandi va AI testi tuzildi!`);
+    }
+
+    function closeAdminEditModal() { $('#adminEditModal').hide(); }
+    function closeUserStudyModal() { $('#userStudyModal').hide(); }
+
+    function submitLessonQuizAnswer(selected, correct) {
+      if (selected === correct) {
+        alert("🎉 Tabriklaymiz! Testdan muvaffaqiyatli o'tdingiz va dars yakunlandi! +50 ELO");
+        const progress = JSON.parse(localStorage.getItem('aalteeer_user_progress') || '[]');
+        if (!progress.includes(selectedLessonKey)) {
+          progress.push(selectedLessonKey);
+          localStorage.setItem('aalteeer_user_progress', JSON.stringify(progress));
+        }
+        closeUserStudyModal();
+        renderDuolingoNodes();
+      } else {
+        alert("❌ Noto'g'ri javob. Videolarni yana bir bor diqqat bilan ko'rib chiqing va qayta urinib ko'ring!");
+      }
+    }
+
+    // Ishga tushirish
+    $(document).ready(function() {
+      if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+      }
+      checkPlacementStatus();
+      $(window).resize(drawDuolingoRope);
+    });
+  </script>
+</body>
+</html>
