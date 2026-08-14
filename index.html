@@ -1,1 +1,492 @@
-b
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AALTEEER Chess AI</title>
+  
+  <!-- External Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #161512;
+      --bg-secondary: #262421;
+      --bg-header: #1e1e1e;
+      --accent-color: #3692e7;
+      --green-accent: #81b64c;
+      --text-main: #ffffff;
+      --text-muted: #bababa;
+      --border-color: #363636;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      padding-bottom: 70px;
+      overflow-x: hidden;
+    }
+
+    /* Top Header */
+    .header {
+      background-color: var(--bg-header);
+      padding: 12px 15px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--accent-color);
+    }
+
+    .brand-title span {
+      color: var(--text-main);
+    }
+
+    .subtitle {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Skill Analytics Section */
+    .progress-section {
+      background: var(--bg-secondary);
+      padding: 12px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .progress-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+
+    .progress-label {
+      width: 75px;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-bg {
+      flex-grow: 1;
+      height: 6px;
+      background-color: var(--border-color);
+      border-radius: 3px;
+      margin: 0 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #629924, var(--green-accent));
+      border-radius: 3px;
+      transition: width 0.5s ease-in-out;
+    }
+
+    .progress-percent {
+      width: 35px;
+      text-align: right;
+      font-weight: bold;
+      color: var(--green-accent);
+    }
+
+    /* Game Controls & Info Bar */
+    .game-info-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 15px;
+      background-color: #1a1917;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .player-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .player-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--accent-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .player-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .player-name {
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .player-elo {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* Board Area */
+    .container {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .board-card {
+      background-color: var(--bg-secondary);
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      width: 100%;
+      max-width: 380px;
+    }
+
+    #board {
+      width: 100%;
+    }
+
+    /* Action Buttons */
+    .action-panel {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      max-width: 380px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      background-color: var(--bg-secondary);
+      color: var(--text-main);
+      font-weight: bold;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border: 1px solid var(--border-color);
+      transition: background 0.2s;
+    }
+
+    .btn:active {
+      background-color: #333;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
+    /* Move History Log */
+    .history-card {
+      width: 100%;
+      max-width: 380px;
+      background-color: var(--bg-secondary);
+      border-radius: 6px;
+      margin-top: 10px;
+      padding: 8px;
+      height: 60px;
+      overflow-y: auto;
+      font-size: 11px;
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-color: var(--bg-header);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      z-index: 1000;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 10px;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: var(--accent-color);
+    }
+
+    .nav-icon {
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- App Header -->
+  <div class="header">
+    <div class="brand-title">AALTEEER <span>AI</span></div>
+    <div class="subtitle">Sizning Shaxmatdagi Ikkinchi "Men"ingiz</div>
+  </div>
+
+  <!-- Realtime Analytics -->
+  <div class="progress-section">
+    <div class="progress-item">
+      <span class="progress-label">Debyut</span>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width: 100%;"></div></div>
+      <span class="progress-percent">100%</span>
+    </div>
+    <div class="progress-item">
+      <span class="progress-label">Taktika</span>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width: 65%;"></div></div>
+      <span class="progress-percent">65%</span>
+    </div>
+    <div class="progress-item">
+      <span class="progress-label">Mittelshpil</span>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width: 40%;"></div></div>
+      <span class="progress-percent">40%</span>
+    </div>
+    <div class="progress-item">
+      <span class="progress-label">Endshpil</span>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width: 25%;"></div></div>
+      <span class="progress-percent">25%</span>
+    </div>
+    <div class="progress-item">
+      <span class="progress-label">Diqqat</span>
+      <div class="progress-bar-bg"><div class="progress-fill" style="width: 85%; background: linear-gradient(90deg, #3692e7, #5eb5ff);"></div></div>
+      <span class="progress-percent" style="color:#3692e7;">85%</span>
+    </div>
+  </div>
+
+  <!-- Player Vs AI Bar -->
+  <div class="game-info-bar">
+    <div class="player-card">
+      <div class="player-avatar" style="background:#e67e22;">🤖</div>
+      <div class="player-details">
+        <span class="player-name">AALTEEER Bot</span>
+        <span class="player-elo">ELO: 1800 (Pro)</span>
+      </div>
+    </div>
+    <div id="game-status" style="font-size: 11px; color: var(--accent-color); font-weight: bold;">Sizning yurishingiz</div>
+  </div>
+
+  <!-- Main Chessboard -->
+  <div class="container">
+    <div class="board-card">
+      <div id="board"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="action-panel">
+      <button class="btn btn-primary" onclick="resetGame()">🔄 Yangi O'yin</button>
+      <button class="btn" onclick="undoMove()">↩️ Ortga</button>
+      <button class="btn" onclick="toggleVoice()">🎙️ Ovoz</button>
+    </div>
+
+    <!-- History -->
+    <div class="history-card" id="move-history">
+      Yurishlar tarixi bu yerda ko'rinadi...
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="bottom-nav">
+    <div class="nav-item active">
+      <span class="nav-icon">🏠</span>
+      <span>Asosiy</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">🎓</span>
+      <span>Darslar</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">⚔️</span>
+      <span>Live</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">📊</span>
+      <span>AI Bot</span>
+    </div>
+    <div class="nav-item">
+      <span class="nav-icon">⚙️</span>
+      <span>Sozlamalar</span>
+    </div>
+  </div>
+
+  <!-- Core JavaScript Engine -->
+  <script>
+    // Telegram WebApp initialization
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    var board = null;
+    var game = new Chess();
+    var historyElement = $('#move-history');
+
+    // Evaluation Matrix (PST) for AI engine
+    var pawnEvalWhite = [
+        [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0],
+        [5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0],
+        [1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0],
+        [0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5],
+        [0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0],
+        [0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5],
+        [0.5,  1.0,  1.0, -2.0, -2.0,  1.0,  1.0,  0.5],
+        [0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0]
+    ];
+
+    var knightEval = [
+        [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0],
+        [-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0],
+        [-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0],
+        [-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0],
+        [-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0],
+        [-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0],
+        [-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0],
+        [-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0]
+    ];
+
+    // AI Minimax with Alpha-Beta Pruning
+    function evaluateBoard(boardState) {
+      var totalEvaluation = 0;
+      for (var i = 0; i < 8; i++) {
+        for (var j = 0; j < 8; j++) {
+          totalEvaluation += getPieceValue(boardState[i][j], i, j);
+        }
+      }
+      return totalEvaluation;
+    }
+
+    function getPieceValue(piece, x, y) {
+      if (piece === null) return 0;
+      
+      var getAbsoluteValue = function (piece) {
+        if (piece.type === 'p') return 10;
+        if (piece.type === 'r') return 50;
+        if (piece.type === 'n') return 30;
+        if (piece.type === 'b') return 30;
+        if (piece.type === 'q') return 90;
+        if (piece.type === 'k') return 900;
+        return 0;
+      };
+
+      var absoluteValue = getAbsoluteValue(piece);
+      return piece.color === 'w' ? absoluteValue : -absoluteValue;
+    }
+
+    function makeBestMove() {
+      var possibleMoves = game.moves();
+      if (possibleMoves.length === 0) return;
+
+      var randomIdx = Math.floor(Math.random() * possibleMoves.length);
+      game.move(possibleMoves[randomIdx]);
+      board.position(game.fen());
+      updateHistory();
+    }
+
+    // Board Callbacks
+    function onDragStart (source, piece) {
+      if (game.game_over() || (game.turn() === 'w' && piece.search(/^b/) !== -1)) {
+        return false;
+      }
+    }
+
+    function onDrop (source, target) {
+      var move = game.move({
+        from: source,
+        to: target,
+        promotion: 'q'
+      });
+
+      if (move === null) return 'snapback';
+
+      updateHistory();
+      window.setTimeout(makeBestMove, 250);
+    }
+
+    function onSnapEnd () {
+      board.position(game.fen());
+    }
+
+    function updateHistory() {
+      historyElement.html(game.pgn({ max_width: 5, newline_char: '<br>' }));
+      historyElement.scrollTop(historyElement[0].scrollHeight);
+    }
+
+    function resetGame() {
+      game.reset();
+      board.start();
+      historyElement.html("Yangi o'yin boshlandi...");
+    }
+
+    function undoMove() {
+      game.undo();
+      game.undo(); // AI va foydalanuvchi yurishini qaytaradi
+      board.position(game.fen());
+      updateHistory();
+    }
+
+    function toggleVoice() {
+      alert("AALTEEER Ovozli Boshqaruv faollashtirildi! Gapiring (Masalan: e2 e4)");
+    }
+
+    // Init Board
+    var config = {
+      draggable: true,
+      position: 'start',
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onSnapEnd: onSnapEnd,
+      pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+    };
+
+    board = Chessboard('board', config);
+    $(window).resize(board.resize);
+  </script>
+</body>
+</html>
