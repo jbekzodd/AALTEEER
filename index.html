@@ -12,10 +12,65 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    .match-header-time {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+    }
+    .player-clock {
+      font-size: 16px;
+      font-weight: 900;
+      font-family: monospace;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: #000;
+      border: 1px solid var(--border-glass);
+      color: var(--accent-gold);
+    }
+    .icon-controls {
+      display: flex;
+      justify-content: space-around;
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      padding: 10px;
+      margin-top: 8px;
+    }
+    .icon-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-glass);
+      font-size: 18px;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      transition: all 0.15s;
+    }
+    .icon-btn:active { transform: scale(0.92); }
+    .icon-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-glass);
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Top Bar -->
+  <!-- Top Glass Header -->
   <div class="top-header">
     <div class="brand-box">
       <div class="brand-logo">♟️</div>
@@ -28,70 +83,57 @@
     </div>
   </div>
 
-  <!-- Main Game Container -->
   <div style="max-width: 440px; margin: 0 auto; padding: 12px 14px;">
-    
-    <!-- Skills Radar -->
-    <div class="skills-card">
-      <div class="skills-title">KO'NIKMALAR TAHLILI</div>
-      <div class="skill-row">
-        <span>Debyut</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 100%; background: var(--accent-gold);"></div></div>
-        <span style="color:var(--accent-gold);">100%</span>
-      </div>
-      <div class="skill-row">
-        <span>Taktika</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 80%; background: var(--accent-cyan);"></div></div>
-        <span style="color:var(--accent-cyan);">80%</span>
-      </div>
-      <div class="skill-row">
-        <span>Mittelshpil</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 55%; background: var(--accent-green);"></div></div>
-        <span style="color:var(--accent-green);">55%</span>
-      </div>
-      <div class="skill-row">
-        <span>Endshpil</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 40%; background: #a855f7;"></div></div>
-        <span style="color:#a855f7;">40%</span>
-      </div>
-      <div class="skill-row">
-        <span>Diqqat</span>
-        <div class="skill-track"><div class="skill-prog" style="width: 90%; background: var(--accent-red);"></div></div>
-        <span style="color:var(--accent-red);">90%</span>
-      </div>
-    </div>
 
-    <!-- Match Info -->
-    <div class="match-meta-bar">
-      <div class="opponent-box">
-        <div class="opponent-avatar" id="botAvatar">🔥</div>
+    <!-- Opponent Bar + Clock -->
+    <div class="match-header-time">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:20px;" id="oppAvatar">🤖</span>
         <div>
-          <h4 id="botName" style="font-size:13px; font-weight:800;">Tajovuzkor Bot (Tal)</h4>
-          <p id="botElo" style="font-size:11px; color:var(--text-muted);">Stockfish AI</p>
+          <div style="font-size:12px; font-weight:800;" id="oppName">Raqib tanlanmagan</div>
+          <div style="font-size:10px; color:var(--text-muted);" id="oppElo">Reyting: ---</div>
         </div>
       </div>
-      <div class="game-status" id="gameTurnStatus">Sizning yurishingiz</div>
+      <div class="player-clock" id="oppTimer">03:00</div>
     </div>
 
-    <!-- Fixed Chessboard Frame -->
-    <div class="board-container">
+    <!-- Main Interactive Board Container -->
+    <div class="board-container" id="boardClickArea" onclick="openGameSelectionModal()" style="cursor: pointer;">
       <div id="board" style="width: 100%;"></div>
     </div>
 
-    <!-- Action Controls -->
-    <div class="controls-grid">
-      <button class="btn btn-gold" onclick="restartMatch()">🔄 Yangi</button>
-      <button class="btn" onclick="undoMove()">↩️ Qaytarish</button>
-      <button class="btn" id="voiceBtnEl" onclick="toggleHandsFreeVoice()">🎙️ Ovoz</button>
+    <!-- User Bar + Clock -->
+    <div class="match-header-time">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:20px;">👤</span>
+        <div>
+          <div style="font-size:12px; font-weight:800;" id="meName">Siz</div>
+          <div style="font-size:10px; color:var(--accent-green);" id="gameTurnStatus">Boshlash uchun doskaga bosing</div>
+        </div>
+      </div>
+      <div class="player-clock" id="meTimer">03:00</div>
+    </div>
+
+    <!-- Icon-Only Action Controls -->
+    <div class="icon-controls">
+      <button class="icon-btn" title="Taslim bo'lish" onclick="resignGame()">🏳️</button>
+      <button class="icon-btn" title="Durang taklif qilish" onclick="offerDraw()">🤝</button>
+      <button class="icon-btn" id="undoActionBtn" title="Yurishni qaytarish" onclick="undoMove()">↩️</button>
+      <button class="icon-btn" id="voiceBtnEl" title="Ovozli o'yin" onclick="toggleHandsFreeVoice()">🎙️</button>
+      <button class="icon-btn" title="Sozlamalar" onclick="openSettingsModal()">⚙️</button>
     </div>
 
   </div>
 
-  <!-- Fixed Bottom Navigation -->
+  <!-- Bottom Navigation -->
   <div class="bottom-navbar">
     <a href="index.html" class="nav-item active">
       <span class="nav-icon">♟️</span>
       <span>Maydon</span>
+    </a>
+    <a href="analysis.html" class="nav-item">
+      <span class="nav-icon">📊</span>
+      <span>Tahlil & Study</span>
     </a>
     <a href="lessons.html" class="nav-item">
       <span class="nav-icon">🎬</span>
@@ -105,6 +147,53 @@
       <span class="nav-icon">👤</span>
       <span>Profil</span>
     </a>
+  </div>
+
+  <!-- GAME SELECTION MODAL -->
+  <div class="modal-overlay" id="gameSelectModal" style="display:none;">
+    <div class="modal-card">
+      <h3 style="color:var(--accent-gold); font-size:17px; margin-bottom:12px;">Raqib va O'yin Usulini Tanlang</h3>
+      
+      <div style="background:#0b0a12; border-radius:12px; padding:10px; margin-bottom:12px; border:1px solid var(--border-glass);">
+        <div style="font-size:11px; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase;">Kim o'ynaydi?</div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-gold" id="playSelfBtn" style="flex:1; padding:8px; font-size:11px;" onclick="setPlayerType('self')">O'zingiz 👤</button>
+          <button class="btn" id="playAgentBtn" style="flex:1; padding:8px; font-size:11px;" onclick="setPlayerType('agent')">AI Agentingiz 🧬</button>
+        </div>
+        <div id="agentStatusNotice" style="font-size:10px; color:var(--accent-gold); margin-top:5px;"></div>
+      </div>
+
+      <button class="btn" style="width:100%; margin-bottom:8px;" onclick="startOnlineRealMatch()">
+        ⚡ Jonli Online Raqib Qidirish
+      </button>
+      <button class="btn" style="width:100%; margin-bottom:8px;" onclick="inviteFriendModal()">
+        👥 Do'st bilan O'ynash (Havola)
+      </button>
+      <button class="btn btn-gold" style="width:100%; margin-bottom:12px;" onclick="startStockfishDirectMatch()">
+        🤖 AI Shaxsiyat bilan O'ynash
+      </button>
+
+      <button class="btn" style="width:100%;" onclick="closeGameSelectionModal()">Yopish</button>
+    </div>
+  </div>
+
+  <!-- GAME SETTINGS MODAL -->
+  <div class="modal-overlay" id="settingsModal" style="display:none;">
+    <div class="modal-card">
+      <h3 style="color:var(--accent-gold); font-size:16px; margin-bottom:14px;">⚙️ O'yin Sozlamalari</h3>
+      
+      <div class="toggle-row">
+        <span style="font-size:12px; font-weight:700;">Avtomatik Farzinga Chiqish</span>
+        <input type="checkbox" id="setToggleQueen" checked style="width:18px; height:18px;" onchange="saveGamePreferences()">
+      </div>
+
+      <div class="toggle-row">
+        <span style="font-size:12px; font-weight:700;">Oldindan Yurish (Premove)</span>
+        <input type="checkbox" id="setTogglePremove" checked style="width:18px; height:18px;" onchange="saveGamePreferences()">
+      </div>
+
+      <button class="btn btn-gold" style="width:100%; margin-top:16px;" onclick="closeSettingsModal()">Saqlash</button>
+    </div>
   </div>
 
   <script src="app.js"></script>
