@@ -5,39 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>AALTEEER Chess AI - Kirish</title>
   
-  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
     :root {
-      --bg-primary: #161512;
-      --bg-card: #262421;
+      --bg-primary: #12110f;
+      --bg-card: #1e1c18;
       --accent: #3692e7;
-      --accent-green: #81b64c;
+      --accent-green: #2ecc71;
+      --gold: #f1c40f;
       --text-main: #ffffff;
-      --text-muted: #8c8c8c;
-      --border-color: #363636;
+      --text-muted: #a0a0a0;
+      --border-color: #33312b;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       user-select: none;
     }
 
     body {
-      background-color: var(--bg-primary);
+      background: radial-gradient(circle at top, #201e19 0%, #12110f 100%);
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 20px;
+      padding: 24px;
     }
 
-    /* Top Language Bar */
+    /* Top Bar */
     .top-bar {
       display: flex;
       justify-content: flex-end;
@@ -49,9 +49,10 @@
       background-color: var(--bg-card);
       color: var(--text-main);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 12px;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
       outline: none;
       cursor: pointer;
     }
@@ -59,87 +60,87 @@
     /* Brand Logo Area */
     .brand-section {
       text-align: center;
-      margin: 20px 0;
+      margin: 30px 0 20px 0;
     }
 
     .logo-badge {
-      width: 65px;
-      height: 65px;
-      margin: 0 auto 15px auto;
-      background: linear-gradient(135deg, #1e1e1e, #2d2b27);
+      width: 85px;
+      height: 85px;
+      margin: 0 auto 18px auto;
+      background: linear-gradient(145deg, #2a2721, #191815);
       border: 2px solid var(--accent);
-      border-radius: 16px;
+      border-radius: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
-      box-shadow: 0 4px 15px rgba(54, 146, 231, 0.2);
+      font-size: 44px;
+      box-shadow: 0 10px 25px rgba(54, 146, 231, 0.25);
     }
 
     .brand-title {
-      font-size: 26px;
+      font-size: 32px;
       font-weight: 900;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       color: var(--accent);
     }
 
     .brand-title span { color: var(--text-main); }
     
     .brand-desc {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-muted);
-      margin-top: 6px;
+      margin-top: 8px;
     }
 
     /* Auth Card Form */
     .auth-card {
       background-color: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      gap: 14px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
     }
 
     .auth-title {
-      font-size: 14px;
-      font-weight: bold;
+      font-size: 17px;
+      font-weight: 700;
       text-align: center;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
 
     .auth-btn {
       width: 100%;
-      padding: 12px;
+      padding: 15px;
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      background-color: #1e1e1e;
+      border-radius: 14px;
+      background-color: #272520;
       color: var(--text-main);
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 15px;
+      font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      transition: transform 0.1s ease;
     }
 
-    .auth-btn:active { transform: scale(0.98); }
+    .auth-btn:active { transform: scale(0.97); }
 
     .btn-tg { background-color: #24A1DE; border-color: #24A1DE; }
-    .btn-google { background-color: #ffffff; color: #1f1f1f; border: none; }
-    .btn-login { background-color: transparent; border-color: var(--border-color); color: var(--text-muted); }
+    .btn-google { background-color: #ffffff; color: #12110f; border: none; }
+    .btn-guest { background-color: transparent; border-color: var(--border-color); color: var(--text-muted); }
 
     .divider {
       display: flex;
       align-items: center;
       text-align: center;
-      color: #555;
-      font-size: 11px;
-      margin: 4px 0;
+      color: #666;
+      font-size: 12px;
+      margin: 6px 0;
     }
 
     .divider::before, .divider::after {
@@ -148,9 +149,9 @@
       border-bottom: 1px solid var(--border-color);
     }
 
-    .divider span { padding: 0 10px; }
+    .divider span { padding: 0 12px; }
 
-    /* Interactive AI Guide (Spotlight Overlay) */
+    /* Katta Hashamatli Tabrik va AI Tanishtiruv Modali */
     .ai-guide-overlay {
       display: none;
       position: fixed;
@@ -158,7 +159,8 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.85);
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(8px);
       z-index: 9999;
       justify-content: center;
       align-items: center;
@@ -166,49 +168,64 @@
     }
 
     .guide-box {
-      background: var(--bg-card);
+      background: linear-gradient(165deg, #26241f, #181714);
       border: 2px solid var(--accent-green);
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 24px;
+      padding: 30px 24px;
       text-align: center;
-      max-width: 320px;
-      box-shadow: 0 0 25px rgba(129, 182, 76, 0.4);
-      animation: popIn 0.3s ease-out;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 0 35px rgba(46, 204, 113, 0.35);
+      animation: celebrationPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    @keyframes popIn {
-      from { transform: scale(0.85); opacity: 0; }
+    @keyframes celebrationPop {
+      from { transform: scale(0.7); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
 
-    .guide-ai-avatar {
-      font-size: 30px;
-      margin-bottom: 8px;
+    .guide-celebration-badge {
+      font-size: 54px;
+      margin-bottom: 12px;
+      display: inline-block;
+      animation: floatBadge 2s infinite ease-in-out;
+    }
+
+    @keyframes floatBadge {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
     .guide-title {
       color: var(--accent-green);
-      font-size: 15px;
-      font-weight: bold;
-      margin-bottom: 6px;
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
     }
 
     .guide-text {
-      font-size: 12px;
-      color: #e0e0e0;
-      line-height: 1.5;
-      margin-bottom: 15px;
+      font-size: 15px;
+      color: #f0f0f0;
+      line-height: 1.6;
+      margin-bottom: 24px;
     }
 
     .guide-btn {
-      background-color: var(--accent-green);
-      color: #000;
+      width: 100%;
+      background: linear-gradient(90deg, #2ecc71, #27ae60);
+      color: #ffffff;
       border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-weight: bold;
+      padding: 15px 24px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 800;
       cursor: pointer;
+      box-shadow: 0 6px 18px rgba(46, 204, 113, 0.4);
+      transition: transform 0.1s;
     }
+
+    .guide-btn:active { transform: scale(0.97); }
   </style>
 </head>
 <body>
@@ -222,16 +239,16 @@
     </select>
   </div>
 
-  <!-- Brand Section -->
+  <!-- Brand Logo -->
   <div class="brand-section">
     <div class="logo-badge">♟️</div>
     <div class="brand-title">AALTEEER <span>AI</span></div>
     <div class="brand-desc" id="t-subtitle">Sizning Shaxmatdagi Ikkinchi "Men"ingiz</div>
   </div>
 
-  <!-- Auth Action Panel -->
+  <!-- Auth Menu -->
   <div class="auth-card">
-    <div class="auth-title" id="t-auth-title">Platformaga Kirish</div>
+    <div class="auth-title" id="t-auth-title">Platformaga Xush Kelibsiz</div>
     
     <button class="auth-btn btn-tg" onclick="handleLogin('telegram')">
       <span>✈️</span> <span id="t-btn-tg">Telegram orqali kirish</span>
@@ -243,24 +260,24 @@
 
     <div class="divider"><span id="t-or">yoki</span></div>
 
-    <button class="auth-btn btn-login" onclick="handleLogin('guest')">
+    <button class="auth-btn btn-guest" onclick="handleLogin('guest')">
       <span>👤</span> <span id="t-btn-guest">Mehmon sifatida kirish</span>
     </button>
   </div>
 
-  <div style="text-align: center; font-size: 10px; color: var(--text-muted);">
-    AALTEEER Chess AI v1.0 • 2026
+  <div style="text-align: center; font-size: 11px; color: var(--text-muted);">
+    AALTEEER Chess AI • Premium Edition
   </div>
 
-  <!-- AI Interactive Tour (Spotlight Mode) -->
+  <!-- AI Katta Tabrik & Tanishtiruv Oynasi -->
   <div class="ai-guide-overlay" id="aiGuideModal">
     <div class="guide-box">
-      <div class="guide-ai-avatar">🤖</div>
-      <div class="guide-title" id="guideTitle">AALTEEER AI Tanishtiruvi</div>
+      <div class="guide-celebration-badge" id="guideBadge">🎉</div>
+      <div class="guide-title" id="guideTitle">AALTEEER Loyihasiga Xush Kelibsiz!</div>
       <div class="guide-text" id="guideText">
-        Xush kelibsiz! Men AALTEEER sun'iy intellektiman. Sizga platformaning har bir menyusi va imkoniyatlarini bosqichma-bosqich tushuntirib beraman.
+        Tabriklaymiz! Siz sun'iy intellektga asoslangan noyob shaxmat olamiga muvaffaqiyatli qo'shildingiz.
       </div>
-      <button class="guide-btn" id="guideBtn" onclick="nextGuideStep()">Davom etish</button>
+      <button class="guide-btn" id="guideBtn" onclick="nextGuideStep()">Boshlash 🚀</button>
     </div>
   </div>
 
@@ -270,46 +287,39 @@
       window.Telegram.WebApp.expand();
     }
 
-    // 3 Tilli Tarjimalar Bazasi
     const i18n = {
       uz: {
         subtitle: "Sizning Shaxmatdagi Ikkinchi \"Men\"ingiz",
-        authTitle: "Platformaga Kirish",
+        authTitle: "Platformaga Xush Kelibsiz",
         btnTg: "Telegram orqali kirish",
         btnGoogle: "Google orqali kirish",
         or: "yoki",
         btnGuest: "Mehmon sifatida kirish",
-        guideTitle1: "Xush kelibsiz!",
-        guideText1: "Men sizning shaxsiy AI murabbiyingizman. Platformada shaxmat o'ynab, o'z uslubingizdagi AI botni yaratasiz.",
-        guideTitle2: "Englify Uslubidagi Radar",
-        guideText2: "Har bir o'yiningiz tahlil qilinib, Debyut, Taktika, Mittelshpil va Endshpil ko'rsatkichlaringiz o'lchab boriladi.",
-        guideBtnNext: "Tushundim, Asosiy Menuga!",
+        welcomeTitle: "AALTEEER Olamiga Xush Kelibsiz! 🎉",
+        welcomeText: "Tabriklaymiz! Siz sun'iy intellektga asoslangan noyob shaxmat platformasiga muvaffaqiyatli qo'shildingiz. Bu yerda siz o'z uslubingizdagi shaxsiy AI botingizni yaratishingiz va intellektual o'yinlardan zavq olishingiz mumkin!",
+        startBtn: "O'yinni Boshlash 🚀"
       },
       ru: {
         subtitle: "Ваше второе «Я» в шахматах",
-        authTitle: "Вход на платформу",
+        authTitle: "Добро пожаловать",
         btnTg: "Войти через Telegram",
         btnGoogle: "Войти через Google",
         or: "или",
         btnGuest: "Войти как гость",
-        guideTitle1: "Добро пожаловать!",
-        guideText1: "Я ваш персональный ИИ-тренер. Играйте и создавайте своего клона-бота на основе вашего стиля игры.",
-        guideTitle2: "Радар навыков",
-        guideText2: "Каждая игра анализируется: мы отслеживаем показатели Дебюта, Тактики, Миттельшпиля и Эндшпиля.",
-        guideBtnNext: "Понятно, в Главное меню!",
+        welcomeTitle: "Добро пожаловать в AALTEEER! 🎉",
+        welcomeText: "Поздравляем! Вы успешно присоединились к инновационной шахматной платформе с ИИ. Здесь вы сможете создать своего персонального клона-бота и наслаждаться глубокой игрой!",
+        startBtn: "Начать игру 🚀"
       },
       en: {
         subtitle: "Your Chess Alter Ego",
-        authTitle: "Sign In to Platform",
+        authTitle: "Welcome to Platform",
         btnTg: "Continue with Telegram",
         btnGoogle: "Continue with Google",
         or: "or",
         btnGuest: "Continue as Guest",
-        guideTitle1: "Welcome!",
-        guideText1: "I am your personal AI chess engine. Play games and clone your unique playing style into a custom bot.",
-        guideTitle2: "Skill Analytics Radar",
-        guideText2: "Every match is evaluated: tracking your Openings, Tactics, Middlegame, and Endgame mastery.",
-        guideBtnNext: "Got it, go to Dashboard!",
+        welcomeTitle: "Welcome to AALTEEER! 🎉",
+        welcomeText: "Congratulations! You have successfully joined the ultimate AI-powered chess ecosystem. Train, play, and clone your unique chess style into your own AI bot!",
+        startBtn: "Get Started 🚀"
       }
     };
 
@@ -326,37 +336,20 @@
       document.getElementById('t-btn-guest').innerText = t.btnGuest;
     }
 
-    let guideStep = 1;
-
     function handleLogin(provider) {
       localStorage.setItem('aalteeer_user', JSON.stringify({ auth: provider, lang: currentLang }));
       
-      // AI Tour'ni ochish
-      document.getElementById('aiGuideModal').style.display = 'flex';
-      showGuideStep(1);
-    }
-
-    function showGuideStep(step) {
       const t = i18n[currentLang];
-      if (step === 1) {
-        document.getElementById('guideTitle').innerText = t.guideTitle1;
-        document.getElementById('guideText').innerText = t.guideText1;
-        document.getElementById('guideBtn').innerText = currentLang === 'uz' ? "Keyingisi ➡️" : (currentLang === 'ru' ? "Далее ➡️" : "Next ➡️");
-      } else if (step === 2) {
-        document.getElementById('guideTitle').innerText = t.guideTitle2;
-        document.getElementById('guideText').innerText = t.guideText2;
-        document.getElementById('guideBtn').innerText = t.guideBtnNext;
-      }
+      document.getElementById('guideTitle').innerText = t.welcomeTitle;
+      document.getElementById('guideText').innerText = t.welcomeText;
+      document.getElementById('guideBtn').innerText = t.startBtn;
+
+      document.getElementById('aiGuideModal').style.display = 'flex';
     }
 
     function nextGuideStep() {
-      if (guideStep === 1) {
-        guideStep = 2;
-        showGuideStep(2);
-      } else {
-        // Asosiy menyuga o'tish
-        window.location.href = 'index.html';
-      }
+      // Asosiy maydonga yo'naltirish
+      window.location.href = 'index.html';
     }
   </script>
 </body>
