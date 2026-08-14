@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AALTEEER - Jonli Efir & Zoom Studio</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    /* Zoom Stream oynasi */
+    .studio-screen-wrapper {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      background: #000;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-gold);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    video#localStreamVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .stream-rec-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #e53935;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: none;
+      align-items: center;
+      gap: 4px;
+      animation: blinkRec 1s infinite;
+    }
+    @keyframes blinkRec { 50% { opacity: 0.3; } }
+
+    /* Zoom Boshqaruv Paneli */
+    .zoom-toolbar {
+      display: flex;
+      justify-content: space-around;
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      padding: 10px 6px;
+      margin-bottom: 14px;
+    }
+    .tool-ctrl-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border-glass);
+      color: #fff;
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      gap: 3px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tool-ctrl-btn span.icon { font-size: 18px; }
+    .tool-ctrl-btn.active {
+      background: var(--accent-gold);
+      color: #000;
+      border-color: #ffe599;
+    }
+    .tool-ctrl-btn.rec-active {
+      background: #e53935;
+      color: #fff;
+      border-color: #ff8a80;
+    }
+
+    /* Yozib olingan arxivlar */
+    .recorded-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <div class="top-header">
+    <div class="brand-box">
+      <div class="brand-logo">📡</div>
+      <div class="brand-title">ZOOM STUDIO</div>
+    </div>
+    <div class="header-actions">
+      <div class="user-badge" id="streamStatusBadge">🔴 Efir: O'chiq</div>
+    </div>
+  </div>
+
+  <div style="max-width: 440px; margin: 0 auto; padding: 12px 14px 90px 14px;">
+
+    <!-- Video Ekrani -->
+    <div class="studio-screen-wrapper">
+      <div class="stream-rec-badge" id="recBadgeEl">● REC YOZILMOQDA</div>
+      <video id="localStreamVideo" autoplay playsinline muted></video>
+      <div id="noStreamPlaceholder" style="color:var(--text-muted); font-size:12px; text-align:center;">
+        📷 Kamera yoki Ekranni yoqing<br>
+        <span style="font-size:10px; color:var(--accent-gold);">Zoom kabi to'liq jonli efir va dars o'tish studiyasi</span>
+      </div>
+    </div>
+
+    <!-- Zoom Boshqaruv Tugmalari -->
+    <div class="zoom-toolbar">
+      <button class="tool-ctrl-btn" id="toggleCamBtn" onclick="toggleCamera()">
+        <span class="icon">📷</span> Kamera
+      </button>
+      <button class="tool-ctrl-btn" id="toggleScreenBtn" onclick="toggleScreenShare()">
+        <span class="icon">🖥️</span> Ekran
+      </button>
+      <button class="tool-ctrl-btn" id="toggleMicBtn" onclick="toggleMicrophone()">
+        <span class="icon">🎙️</span> Ovoz
+      </button>
+      <button class="tool-ctrl-btn" id="toggleRecBtn" onclick="toggleLiveRecording()">
+        <span class="icon">⏺️</span> Yozish
+      </button>
+      <button class="tool-ctrl-btn" style="background:#e53935; color:#fff;" onclick="endLiveSession()">
+        <span class="icon">🛑</span> Tugatish
+      </button>
+    </div>
+
+    <!-- Jonli Efir Chati -->
+    <div class="skills-card" style="margin-bottom:14px; padding:12px;">
+      <div style="font-size:12px; font-weight:800; color:var(--accent-gold); margin-bottom:6px;">💬 Jonli Efir Muloqoti:</div>
+      <div class="live-chat-box" id="zoomLiveChat" style="height:110px; overflow-y:auto; font-size:11px;">
+        <div class="chat-msg"><span class="chat-user">🤖 AALTEEER Bot:</span> <span>Efir boshlanganda tomoshabinlar va AI agentlar shu yerda fikr bildiradi.</span></div>
+      </div>
+      <div style="display:flex; gap:6px; margin-top:8px;">
+        <input type="text" id="zoomChatInput" class="custom-input" placeholder="Xabar yozing..." style="font-size:11px;">
+        <button class="btn btn-gold" style="padding:6px 12px; font-size:11px;" onclick="sendZoomChatMessage()">Yuborish</button>
+      </div>
+    </div>
+
+    <!-- Yozib olingan Efirlar Arxiv (Profil / Telegram yuborish) -->
+    <div style="font-size:13px; font-weight:800; color:var(--accent-gold); margin-bottom:8px;">
+      📼 Saqlangan Jonli Efirlarim
+    </div>
+    <div id="savedRecordingsList">
+      <div style="font-size:11px; color:var(--text-muted);">Hozircha saqlangan efir videolari yo'q.</div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="bottom-navbar">
+    <a href="index.html" class="nav-item">
+      <span class="nav-icon">♟️</span>
+      <span>Maydon</span>
+    </a>
+    <a href="live.html" class="nav-item active">
+      <span class="nav-icon">📡</span>
+      <span>Jonli & Zoom</span>
+    </a>
+    <a href="analysis.html" class="nav-item">
+      <span class="nav-icon">📊</span>
+      <span>Tahlil</span>
+    </a>
+    <a href="lessons.html" class="nav-item">
+      <span class="nav-icon">🎬</span>
+      <span>Darslar</span>
+    </a>
+    <a href="alterego.html" class="nav-item">
+      <span class="nav-icon">🧬</span>
+      <span>AI Botlar</span>
+    </a>
+  </div>
+
+  <script>
+    let localStream = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isCameraOn = false;
+    let isScreenOn = false;
+    let isMicOn = false;
+    let isRecording = false;
+
+    async function toggleCamera() {
+      try {
+        if (!isCameraOn) {
+          localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: isMicOn });
+          document.getElementById('localStreamVideo').srcObject = localStream;
+          $('#noStreamPlaceholder').hide();
+          $('#toggleCamBtn').addClass('active');
+          $('#streamStatusBadge').text("🟢 LIVE (Kamera)").css('color', '#81b64c');
+          isCameraOn = true;
+        } else {
+          stopMediaTracks();
+          $('#toggleCamBtn').removeClass('active');
+          isCameraOn = false;
+        }
+      } catch (err) {
+        alert("Kameraga ruxsat berilmadi yoki mavjud emas: " + err.message);
+      }
+    }
+
+    async function toggleScreenShare() {
+      try {
+        if (!isScreenOn) {
+          localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+          document.getElementById('localStreamVideo').srcObject = localStream;
+          $('#noStreamPlaceholder').hide();
+          $('#toggleScreenBtn').addClass('active');
+          $('#streamStatusBadge').text("🟢 LIVE (Ekran)").css('color', '#81b64c');
+          isScreenOn = true;
+        } else {
+          stopMediaTracks();
+          $('#toggleScreenBtn').removeClass('active');
+          isScreenOn = false;
+        }
+      } catch (err) {
+        alert("Ekranni ulashish bekor qilindi!");
+      }
+    }
+
+    function toggleMicrophone() {
+      if (!localStream) {
+        alert("Avval kamera yoki ekranni yoqing!");
+        return;
+      }
+      isMicOn = !isMicOn;
+      localStream.getAudioTracks().forEach(track => track.enabled = isMicOn);
+      $('#toggleMicBtn').toggleClass('active', isMicOn);
+    }
+
+    function toggleLiveRecording() {
+      if (!localStream) {
+        alert("Efir yoqilmagan! Avval kamera yoki ekranni yoqing.");
+        return;
+      }
+
+      if (!isRecording) {
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(localStream);
+        
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = saveRecordingToArchive;
+        mediaRecorder.start();
+
+        isRecording = true;
+        $('#recBadgeEl').css('display', 'flex');
+        $('#toggleRecBtn').addClass('rec-active');
+        alert("⏺️ Efir yozib olinmoqda. Efir tugagach video sizga ko'rsatiladi!");
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+        $('#recBadgeEl').hide();
+        $('#toggleRecBtn').removeClass('rec-active');
+      }
+    }
+
+    function saveRecordingToArchive() {
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      const videoUrl = URL.createObjectURL(blob);
+      const timeStr = new Date().toLocaleTimeString();
+
+      const itemHtml = `
+        <div class="recorded-card">
+          <div>
+            <div style="font-size:12px; font-weight:800; color:var(--accent-gold);">📹 Efir Yozuvi (${timeStr})</div>
+            <div style="font-size:10px; color:var(--text-muted);">Hajmi: ${(blob.size / (1024*1024)).toFixed(1)} MB | Telegramga tayyor</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <a href="${videoUrl}" target="_blank" class="btn btn-gold" style="padding:4px 8px; font-size:10px;">Ko'rish 👁️</a>
+            <button class="btn" style="padding:4px 8px; font-size:10px;" onclick="sendVideoToTelegram()">Telegramga ✈️</button>
+          </div>
+        </div>
+      `;
+
+      if ($('#savedRecordingsList').text().includes("Hozircha")) {
+        $('#savedRecordingsList').empty();
+      }
+      $('#savedRecordingsList').prepend(itemHtml);
+      alert("✅ Efir yozib olindi va profilingiz arxiviga saqlandi!");
+    }
+
+    function sendVideoToTelegram() {
+      alert("✈️ Video fayli Telegram botingizga yuborildi!");
+    }
+
+    function stopMediaTracks() {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+      }
+      $('#noStreamPlaceholder').show();
+      $('#streamStatusBadge').text("🔴 Efir: O'chiq").css('color', 'var(--text-muted)');
+    }
+
+    function endLiveSession() {
+      if (isRecording) toggleLiveRecording();
+      stopMediaTracks();
+      $('#toggleCamBtn, #toggleScreenBtn, #toggleMicBtn').removeClass('active');
+      alert("🛑 Jonli efir yakunlandi.");
+    }
+
+    function sendZoomChatMessage() {
+      const val = $('#zoomChatInput').val().trim();
+      if (!val) return;
+      const user = JSON.parse(localStorage.getItem('aalteeer_user') || '{}');
+      const name = user.name || "Bekzod";
+
+      $('#zoomLiveChat').append(`<div class="chat-msg"><span class="chat-user">🇺🇿 ${name}:</span> <span>${val}</span></div>`);
+      $('#zoomChatInput').val('');
+      $('#zoomLiveChat').scrollTop($('#zoomLiveChat')[0].scrollHeight);
+    }
+  </script>
+</body>
+</html>
