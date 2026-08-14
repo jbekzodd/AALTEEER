@@ -128,18 +128,23 @@
       backdrop-filter: blur(10px);
     }
 
-    .admin-pill {
-      background: linear-gradient(135deg, rgba(229, 184, 105, 0.2), rgba(0, 0, 0, 0.4));
-      border: 1px solid var(--border-gold);
+    .user-pill {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.4));
+      border: 1px solid var(--border-glass);
       padding: 6px 12px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 700;
-      color: var(--accent-gold);
+      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 6px;
       cursor: pointer;
+    }
+
+    .user-pill.admin-mode {
+      border-color: var(--border-gold);
+      color: var(--accent-gold);
       box-shadow: 0 0 12px var(--accent-gold-glow);
     }
 
@@ -326,7 +331,7 @@
       line-height: 1.5;
     }
 
-    /* Video Cards */
+    /* Video & Quiz Cards */
     .video-lesson-card {
       background: var(--bg-card);
       border: 1px solid var(--border-glass);
@@ -352,9 +357,8 @@
 
     .lesson-meta { padding: 14px; }
     .lesson-meta h3 { font-size: 14px; font-weight: 800; margin-bottom: 4px; color: var(--accent-gold); }
-    .lesson-meta p { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+    .lesson-meta p { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px; }
 
-    /* Module Items */
     .module-item {
       background: var(--bg-card);
       border: 1px solid var(--border-glass);
@@ -464,6 +468,21 @@
     }
 
     .input-field:focus { border-color: var(--accent-gold); }
+
+    .quiz-opt-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-glass);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      margin-bottom: 8px;
+    }
+
+    .quiz-opt-btn:hover { border-color: var(--accent-gold); }
   </style>
 </head>
 <body>
@@ -490,8 +509,8 @@
         <option value="zh">ZH 🇨🇳</option>
         <option value="hi">HI 🇮🇳</option>
       </select>
-      <div class="admin-pill" onclick="openAdminVideoModal()">
-        <span>👑</span> <span id="userDisplay">Bekzod</span>
+      <div class="user-pill" id="userPillEl" onclick="handleUserPillClick()">
+        <span id="userBadgeIcon">👤</span> <span id="userDisplay">Foydalanuvchi</span>
       </div>
     </div>
   </div>
@@ -499,29 +518,29 @@
   <!-- VIEW 1: MATCHBOARD & SKILL RADAR -->
   <div id="view-match" class="view-panel active">
     <div class="skills-glass-card">
-      <div class="skills-title" id="t-radar-title">Ko'nikmalar Tahlili</div>
+      <div class="skills-title">Ko'nikmalar Tahlili</div>
       <div class="skill-row">
-        <span class="skill-name" id="l-opening">Debyut</span>
+        <span class="skill-name">Debyut</span>
         <div class="skill-track"><div class="skill-progress" style="width: 100%; background: var(--accent-gold);"></div></div>
         <span class="skill-val" style="color:var(--accent-gold);">100%</span>
       </div>
       <div class="skill-row">
-        <span class="skill-name" id="l-tactics">Taktika</span>
+        <span class="skill-name">Taktika</span>
         <div class="skill-track"><div class="skill-progress" style="width: 75%; background: var(--accent-cyan);"></div></div>
         <span class="skill-val" style="color:var(--accent-cyan);">75%</span>
       </div>
       <div class="skill-row">
-        <span class="skill-name" id="l-midgame">Mittelshpil</span>
+        <span class="skill-name">Mittelshpil</span>
         <div class="skill-track"><div class="skill-progress" style="width: 50%; background: var(--accent-green);"></div></div>
         <span class="skill-val" style="color:var(--accent-green);">50%</span>
       </div>
       <div class="skill-row">
-        <span class="skill-name" id="l-endgame">Endshpil</span>
+        <span class="skill-name">Endshpil</span>
         <div class="skill-track"><div class="skill-progress" style="width: 35%; background: #a855f7;"></div></div>
         <span class="skill-val" style="color:#a855f7;">35%</span>
       </div>
       <div class="skill-row">
-        <span class="skill-name" id="l-focus">Diqqat</span>
+        <span class="skill-name">Diqqat</span>
         <div class="skill-track"><div class="skill-progress" style="width: 90%; background: var(--accent-red);"></div></div>
         <span class="skill-val" style="color:var(--accent-red);">90%</span>
       </div>
@@ -556,11 +575,12 @@
     </div>
   </div>
 
-  <!-- VIEW 2: VIDEO LESSONS (ADMIN STUDIO) -->
+  <!-- VIEW 2: VIDEO LESSONS (AI DUOLINGO QUIZ) -->
   <div id="view-academy" class="view-panel">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h2 style="font-size:16px; color:var(--accent-gold);">🎬 Video Darslar</h2>
-      <button class="btn btn-gold" style="padding:6px 12px; font-size:11px;" onclick="openAdminVideoModal()">+ Video Qo'shish</button>
+      <h2 style="font-size:16px; color:var(--accent-gold);">🎬 Darslar Akademiyasi</h2>
+      <!-- Faqat Bekzodga ko'rinadi -->
+      <button id="adminControls" class="btn btn-gold" style="padding:6px 12px; font-size:11px; display:none;" onclick="openAdminVideoModal()">+ Video Qo'shish</button>
     </div>
     <div id="lessonsContainer"></div>
   </div>
@@ -572,7 +592,7 @@
       <div class="module-icon">🙈</div>
       <div>
         <h3 style="font-size:13px; font-weight:700;">Vocal Blindfold (Ko'zsiz Shaxmat)</h3>
-        <p style="font-size:11px; color:var(--text-muted);">Donalarni butunlay yashirib, ovoz orqali o'ynang.</p>
+        <p style="font-size:11px; color:var(--text-muted);">Donalarni butunlay yashirib, faqat ovoz orqali o'ynang.</p>
       </div>
     </div>
     <div class="module-item" onclick="sharePvpLink()">
@@ -590,7 +610,7 @@
     <div class="skills-glass-card" style="text-align:center;">
       <h3 style="font-size:15px; color:var(--accent-gold); margin-bottom:6px;">Alter Ego Engine v2.0</h3>
       <p style="font-size:11px; color:var(--text-muted); line-height:1.5; margin-bottom:14px;">
-        Sizning barcha o'yinlaringiz tahlil qilinib, aynan sizning uslubingizdagi shaxsiy botingiz shakllantirildi.
+        Sizning o'yinlaringiz tahlil qilinib, aynan sizning uslubingizdagi shaxsiy bot shakllantiriladi.
       </p>
       <button class="btn btn-gold" style="width:100%;" onclick="cloneUserAlterEgo()">Botni Faollashtirish 🚀</button>
     </div>
@@ -599,14 +619,14 @@
       <div class="module-icon">🔥</div>
       <div>
         <h3 style="font-size:13px; font-weight:700;">Mikhail Tal Uslubi</h3>
-        <p style="font-size:11px; color:var(--text-muted);">Cheksiz qurbonliklar va dahshatli hujumlar.</p>
+        <p style="font-size:11px; color:var(--text-muted);">Cheksiz qurbonliklar va to'xtovsiz hujum.</p>
       </div>
     </div>
     <div class="module-item" onclick="chooseBotPersonality('🛡️', 'Pozitsion Bot (Karpov)', 2250)">
       <div class="module-icon">🛡️</div>
       <div>
         <h3 style="font-size:13px; font-weight:700;">Anatoly Karpov Uslubi</h3>
-        <p style="font-size:11px; color:var(--text-muted);">Mustahkam profilaktika va xatosiz pozitsiya.</p>
+        <p style="font-size:11px; color:var(--text-muted);">Mustahkam mudofaa va xatosiz pozitsiya.</p>
       </div>
     </div>
   </div>
@@ -614,11 +634,11 @@
   <!-- VIEW 5: SETTINGS -->
   <div id="view-settings" class="view-panel">
     <h2 style="font-size:16px; color:var(--accent-gold); margin-bottom:12px;">⚙️ Profil & Sozlamalar</h2>
-    <div class="module-item">
-      <div class="module-icon">👑</div>
+    <div class="module-item" onclick="openAuthModal()">
+      <div class="module-icon">👤</div>
       <div>
-        <h3 style="font-size:13px; font-weight:700;" id="profName">Bekzod (Admin)</h3>
-        <p style="font-size:11px; color:var(--accent-gold);">Status: Grandmaster / Creator</p>
+        <h3 style="font-size:13px; font-weight:700;" id="profNameDisplay">Foydalanuvchi Profili</h3>
+        <p style="font-size:11px; color:var(--accent-gold);" id="profStatusDisplay">Status: Player</p>
       </div>
     </div>
   </div>
@@ -647,19 +667,44 @@
     </div>
   </div>
 
-  <!-- ADMIN MODAL -->
+  <!-- AUTH MODAL -->
+  <div class="modal-overlay" id="authModal" style="display: none;">
+    <div class="modal-box">
+      <div style="font-size:40px; margin-bottom:8px;">♟️</div>
+      <h3 style="font-size:18px; color:var(--accent-gold); margin-bottom:6px;">Hisobga Kirish</h3>
+      <p style="font-size:11px; color:var(--text-muted); margin-bottom:14px;">Ismingiz yoki taxallusingizni kiriting:</p>
+      <input type="text" id="authUsernameInput" class="input-field" placeholder="Masalan: Bekzod">
+      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="processAuthRegister()">Kirish 🚀</button>
+      <button class="btn" style="width:100%;" onclick="closeAuthModal()">Yopish</button>
+    </div>
+  </div>
+
+  <!-- BEKZOD ADMIN VIDEO MODAL -->
   <div class="modal-overlay" id="adminVideoModal" style="display: none;">
     <div class="modal-box">
       <div style="font-size:40px; margin-bottom:8px;">🎬</div>
       <h3 style="font-size:18px; color:var(--accent-gold); margin-bottom:6px;">Video Darslik Joylash</h3>
       <p style="font-size:11px; color:var(--text-muted); margin-bottom:14px;">Bekzod, yangi video darslik ma'lumotlarini kiriting:</p>
       
-      <input type="text" id="videoTitleInput" class="input-field" placeholder="Dars mavzusi">
-      <input type="text" id="videoUrlInput" class="input-field" placeholder="YouTube Embed Link">
+      <input type="text" id="videoTitleInput" class="input-field" placeholder="Dars mavzusi (Masalan: Sitsiliya Himoyasi)">
+      <input type="text" id="videoUrlInput" class="input-field" placeholder="YouTube Embed Link (https://www.youtube.com/embed/...)">
       <textarea id="videoDescInput" class="input-field" style="height:60px;" placeholder="Tavsif..."></textarea>
       
-      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="saveAdminVideoLesson()">Saqlash 🚀</button>
+      <button class="btn btn-gold" style="width:100%; margin-bottom:8px;" onclick="saveAdminVideoLesson()">Saqlash va AI Testini Yaratish 🚀</button>
       <button class="btn" style="width:100%;" onclick="closeAdminVideoModal()">Yopish</button>
+    </div>
+  </div>
+
+  <!-- DUOLINGO STYLE AI QUIZ MODAL -->
+  <div class="modal-overlay" id="quizModal" style="display: none;">
+    <div class="modal-box">
+      <div style="font-size:40px; margin-bottom:8px;">🧠</div>
+      <h3 id="quizTitle" style="font-size:16px; color:var(--accent-gold); margin-bottom:6px;">AI Taktika Testi</h3>
+      <p id="quizQuestion" style="font-size:13px; color:#fff; line-height:1.4; margin-bottom:16px;"></p>
+      
+      <div id="quizOptionsContainer"></div>
+      
+      <button class="btn" style="width:100%; margin-top:10px;" onclick="closeQuizModal()">Yopish</button>
     </div>
   </div>
 
@@ -692,7 +737,54 @@
       if (tab === 'match' && board) board.resize();
     }
 
-    // Chess Logic
+    // ==========================================
+    // ADMIN IDENTIFIKATSIYASI (BEKZOD)
+    // ==========================================
+    let isUserAdmin = false;
+
+    function checkAdminAccess() {
+      const adminTgUsername = "jovliyev_bekzod";
+      const adminLocalName = "bekzod";
+
+      const tgUser = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) 
+        ? window.Telegram.WebApp.initDataUnsafe.user 
+        : null;
+      const tgUsername = tgUser && tgUser.username ? tgUser.username.toLowerCase() : "";
+
+      const savedUser = JSON.parse(localStorage.getItem('aalteeer_user') || '{}');
+      const localName = savedUser.name ? savedUser.name.toLowerCase().trim() : "";
+
+      if (tgUsername === adminTgUsername || localName === adminLocalName || localName.startsWith("bekzod")) {
+        isUserAdmin = true;
+        $('#adminControls').show();
+        $('#userPillEl').addClass('admin-mode');
+        $('#userBadgeIcon').text("👑");
+        $('#userDisplay').text("Bekzod (Admin)");
+        $('#profNameDisplay').text("Bekzod (Admin)");
+        $('#profStatusDisplay').text("Status: Grandmaster / Creator");
+      } else {
+        isUserAdmin = false;
+        $('#adminControls').hide();
+        $('#userPillEl').removeClass('admin-mode');
+        $('#userBadgeIcon').text("👤");
+        const displayName = savedUser.name || (tgUser ? tgUser.first_name : "Foydalanuvchi");
+        $('#userDisplay').text(displayName);
+        $('#profNameDisplay').text(displayName);
+        $('#profStatusDisplay').text("Status: O'yinchi");
+      }
+    }
+
+    function handleUserPillClick() {
+      if (isUserAdmin) {
+        openAdminVideoModal();
+      } else {
+        openAuthModal();
+      }
+    }
+
+    // ==========================================
+    // CHESS LOGIC & AI ENGINE
+    // ==========================================
     var board = null;
     var game = new Chess();
 
@@ -780,73 +872,56 @@
     }
 
     // ==========================================
-    // MUKAMMAL O'ZBEKCHA OVOZ PARSERI (VOICE AI)
+    // O'ZBEKCHA OVOZLI BOSHQARUV (VOICE PARSER)
     // ==========================================
     function parseUzbekVoiceToMove(rawText) {
       let text = rawText.toLowerCase().trim();
-      
-      // O'zbekcha harf va so'zlarni koordinatalarga o'girish xaritasi
       const replaceMap = {
-        // Harflar
         "ye": "e", "yo": "e", "e": "e", "a": "a", "be": "b", "b": "b",
         "se": "c", "ce": "c", "c": "c", "de": "d", "d": "d",
         "ef": "f", "fe": "f", "f": "f", "je": "g", "ge": "g", "g": "g",
         "ash": "h", "ha": "h", "h": "h",
-        // Sonlar
-        "bir": "1", "bitta": "1", "1-": "1", "1": "1",
-        "ikki": "2", "ikkinchi": "2", "2-": "2", "2": "2",
-        "uch": "3", "uchinchi": "3", "3-": "3", "3": "3",
-        "to'rt": "4", "tort": "4", "to'rtinchi": "4", "4-": "4", "4": "4",
-        "besh": "5", "beshinchi": "5", "5-": "5", "5": "5",
-        "olti": "6", "oltinchi": "6", "6-": "6", "6": "6",
-        "yetti": "7", "yettinchi": "7", "7-": "7", "7": "7",
-        "sakkiz": "8", "sakkizinchi": "8", "8-": "8", "8": "8"
+        "bir": "1", "bitta": "1", "1": "1",
+        "ikki": "2", "2": "2",
+        "uch": "3", "3": "3",
+        "to'rt": "4", "tort": "4", "4": "4",
+        "besh": "5", "5": "5",
+        "olti": "6", "6": "6",
+        "yetti": "7", "7": "7",
+        "sakkiz": "8", "8": "8"
       };
 
-      // Ortiqcha so'zlarni tozalash (masalan: "ot e ikki e tortga yursin")
       text = text.replace(/yursin|yur|katagiga|katakka|dan|ga|ot|fil|shoh|farzin|rux|piyoda/g, " ");
-
-      // So'zlarni ajratib xaritadan o'tkazish
       let words = text.split(/\s+/).filter(w => w.length > 0);
-      let parsedString = "";
+      let parsed = "";
 
       words.forEach(w => {
         if (replaceMap[w]) {
-          parsedString += replaceMap[w];
+          parsed += replaceMap[w];
         } else {
           for (let char of w) {
-            if (replaceMap[char]) {
-              parsedString += replaceMap[char];
-            } else if (/[a-h1-8]/.test(char)) {
-              parsedString += char;
-            }
+            if (replaceMap[char]) parsed += replaceMap[char];
+            else if (/[a-h1-8]/.test(char)) parsed += char;
           }
         }
       });
 
-      // Agar natija "e2e4" yoki "g1f3" ko'rinishida bo'lsa (4 ta belgi)
-      const match = parsedString.match(/([a-h][1-8])([a-h][1-8])/);
-      if (match) {
-        return { from: match[1], to: match[2] };
-      }
-      return null;
+      const match = parsed.match(/([a-h][1-8])([a-h][1-8])/);
+      return match ? { from: match[1], to: match[2] } : null;
     }
 
     function triggerVoiceControl() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        alert("Brauzeringiz ovozli boshqaruvni qo'llab-quvvatlamaydi.");
-        return;
-      }
+      if (!SpeechRecognition) return alert("Brauzeringiz ovozli boshqaruvni qo'llab-quvvatlamaydi.");
 
       const recognition = new SpeechRecognition();
-      recognition.lang = 'uz-UZ'; // O'zbek tili
+      recognition.lang = 'uz-UZ';
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
 
       const voiceBtn = $('#voiceBtnEl');
       voiceBtn.addClass('btn-voice-active').html("🔴 Tinglanmoqda...");
-      $('#gameTurnStatus').text("🎙️ Gapiring (Masalan: 'E ikki E to'rt')...").css('color', 'var(--accent-red)');
+      $('#gameTurnStatus').text("🎙️ Gapiring (Masalan: E2 E4)...").css('color', 'var(--accent-red)');
 
       recognition.start();
 
@@ -855,25 +930,24 @@
         voiceBtn.removeClass('btn-voice-active').html("🎙️ Ovoz");
         
         const moveCoords = parseUzbekVoiceToMove(transcript);
-
         if (moveCoords) {
           const move = game.move({ from: moveCoords.from, to: moveCoords.to, promotion: 'q' });
           if (move) {
             board.position(game.fen());
             updateHistory();
-            $('#gameTurnStatus').text(`✅ Qabul: ${moveCoords.from}-${moveCoords.to}`).css('color', 'var(--accent-green)');
+            $('#gameTurnStatus').text(`✅ ${moveCoords.from}-${moveCoords.to}`).css('color', 'var(--accent-green)');
             window.setTimeout(makeAiMove, 400);
           } else {
-            alert(`⚠️ Qoidaga zid yurish: "${transcript}" (${moveCoords.from} -> ${moveCoords.to})`);
+            alert(`Qoidaga zid yurish: "${transcript}"`);
             updateStatusBadge();
           }
         } else {
-          alert(`Eshitildi: "${transcript}". Iltimos, aniq ayting (Masalan: "E ikki E to'rt" yoki "Ot F uch").`);
+          alert(`Eshitildi: "${transcript}". Masalan: "E ikki E to'rt" deng.`);
           updateStatusBadge();
         }
       };
 
-      recognition.onerror = function(event) {
+      recognition.onerror = function() {
         voiceBtn.removeClass('btn-voice-active').html("🎙️ Ovoz");
         updateStatusBadge();
       };
@@ -883,7 +957,120 @@
       };
     }
 
-    // Blindfold
+    // ==========================================
+    // VIDEO LESSONS & DUOLINGO STYLE AI QUIZ
+    // ==========================================
+    var defaultLessons = [
+      {
+        title: "Sitsiliya Himoyasi: Asosiy Strategiya",
+        url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        desc: "Bekzod tomonidan tayyorlangan maxsus debyut tahlili.",
+        quiz: {
+          q: "Sitsiliya himoyasida qoralarning 1...c5 yurishidan asosiy maqsad nima?",
+          options: ["Markazdagi d4 katagini nazorat qilish", "Shoxni darhol rokirovka qilish", "Otni chetga chiqarish"],
+          correct: 0
+        }
+      }
+    ];
+
+    function renderLessons() {
+      var lessons = JSON.parse(localStorage.getItem('aalteeer_lessons') || JSON.stringify(defaultLessons));
+      var html = '';
+      lessons.forEach(function(item, idx) {
+        html += `
+          <div class="video-lesson-card">
+            <div class="video-thumb-wrap">
+              <iframe src="${item.url}" allowfullscreen></iframe>
+            </div>
+            <div class="lesson-meta">
+              <h3>${item.title}</h3>
+              <p>${item.desc}</p>
+              <button class="btn btn-gold" style="width:100%; font-size:11px;" onclick="startLessonQuiz(${idx})">🧠 AI Testini Yechish (Duolingo Style)</button>
+            </div>
+          </div>
+        `;
+      });
+      $('#lessonsContainer').html(html);
+    }
+
+    function startLessonQuiz(idx) {
+      var lessons = JSON.parse(localStorage.getItem('aalteeer_lessons') || JSON.stringify(defaultLessons));
+      var lesson = lessons[idx];
+      var quiz = lesson.quiz || {
+        q: `${lesson.title} bo'yicha eng to'g'ri strategik qadam nima?`,
+        options: ["Figuralarni markazga rivojlantirish", "Piyodalarni maqsadsiz oldinga surish", "Shohni himoyasiz qoldirish"],
+        correct: 0
+      };
+
+      $('#quizTitle').text("Test: " + lesson.title);
+      $('#quizQuestion').text(quiz.q);
+
+      let optsHtml = '';
+      quiz.options.forEach((opt, optIdx) => {
+        optsHtml += `<button class="quiz-opt-btn" onclick="checkQuizAnswer(${optIdx}, ${quiz.correct})">${String.fromCharCode(65 + optIdx)}) ${opt}</button>`;
+      });
+
+      $('#quizOptionsContainer').html(optsHtml);
+      $('#quizModal').show();
+    }
+
+    function checkQuizAnswer(selected, correct) {
+      if (selected === correct) {
+        alert("🎉 Ajoyib! To'g'ri javob berdingiz! +25 ELO");
+        closeQuizModal();
+      } else {
+        alert("❌ Noto'g'ri javob. Videoni qayta ko'rib chiqing va urinib ko'ring!");
+      }
+    }
+
+    function closeQuizModal() { $('#quizModal').hide(); }
+    function openAdminVideoModal() { $('#adminVideoModal').show(); }
+    function closeAdminVideoModal() { $('#adminVideoModal').hide(); }
+
+    function saveAdminVideoLesson() {
+      var title = $('#videoTitleInput').val().trim();
+      var url = $('#videoUrlInput').val().trim();
+      var desc = $('#videoDescInput').val().trim();
+
+      if (!title || !url) return alert("Iltimos, dars mavzusi va video linkini kiriting!");
+
+      var lessons = JSON.parse(localStorage.getItem('aalteeer_lessons') || JSON.stringify(defaultLessons));
+      lessons.unshift({
+        title: title,
+        url: url,
+        desc: desc || "Bekzod tomonidan yangi joylangan dars.",
+        quiz: {
+          q: `${title} mavzusi bo'yicha asosiy xulosa qaysi?`,
+          options: ["Pozitsion ustunlikni ushlab turish", "Figuralarni passiv himoyada qoldirish", "Shoh qanotini zaiflashtirish"],
+          correct: 0
+        }
+      });
+
+      localStorage.setItem('aalteeer_lessons', JSON.stringify(lessons));
+      renderLessons();
+      closeAdminVideoModal();
+      alert("✅ Bekzod, video darslik va AI testi muvaffaqiyatli joylandi!");
+    }
+
+    // ==========================================
+    // AUTH MODAL LOGIC
+    // ==========================================
+    function openAuthModal() { $('#authModal').show(); }
+    function closeAuthModal() { $('#authModal').hide(); }
+
+    function processAuthRegister() {
+      const name = $('#authUsernameInput').val().trim();
+      if (!name) return alert("Iltimos, ismingizni kiriting!");
+
+      localStorage.setItem('aalteeer_user', JSON.stringify({ name: name, auth: true }));
+      closeAuthModal();
+      checkAdminAccess();
+      alert(`Xush kelibsiz, ${name}!`);
+    }
+
+    // ==========================================
+    // OTHER FEATURES (BLINDFOLD, ALTER EGO)
+    // ==========================================
     var blindfold = false;
     function toggleBlindfoldGame() {
       blindfold = !blindfold;
@@ -895,6 +1082,8 @@
     function sharePvpLink() {
       if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(window.location.href) + "&text=AALTEEER Chess AI'da men bilan kuch sinash!");
+      } else {
+        alert("Chaqiruv havolasi nusxalandi!");
       }
     }
 
@@ -914,54 +1103,9 @@
       switchNavTab('match', $('.nav-btn')[0]);
     }
 
-    // Video Lessons Logic
-    var defaultLessons = [
-      {
-        title: "Sitsiliya Himoyasi: Eng Kuchli Taktika",
-        url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-        desc: "Bekzod tomonidan tayyorlangan maxsus debyut tahlili."
-      }
-    ];
-
-    function renderLessons() {
-      var lessons = JSON.parse(localStorage.getItem('aalteeer_lessons') || JSON.stringify(defaultLessons));
-      var html = '';
-      lessons.forEach(function(item) {
-        html += `
-          <div class="video-lesson-card">
-            <div class="video-thumb-wrap">
-              <iframe src="${item.url}" allowfullscreen></iframe>
-            </div>
-            <div class="lesson-meta">
-              <h3>${item.title}</h3>
-              <p>${item.desc}</p>
-            </div>
-          </div>
-        `;
-      });
-      $('#lessonsContainer').html(html);
-    }
-
-    function openAdminVideoModal() { $('#adminVideoModal').show(); }
-    function closeAdminVideoModal() { $('#adminVideoModal').hide(); }
-
-    function saveAdminVideoLesson() {
-      var title = $('#videoTitleInput').val().trim();
-      var url = $('#videoUrlInput').val().trim();
-      var desc = $('#videoDescInput').val().trim();
-
-      if (!title || !url) return alert("Iltimos, sarlavha va video havolasini kiriting!");
-
-      var lessons = JSON.parse(localStorage.getItem('aalteeer_lessons') || JSON.stringify(defaultLessons));
-      lessons.unshift({ title: title, url: url, desc: desc || "Bekzodning yangi darsi." });
-      localStorage.setItem('aalteeer_lessons', JSON.stringify(lessons));
-
-      renderLessons();
-      closeAdminVideoModal();
-      alert("✅ Yangi video dars joylandi!");
-    }
-
-    // Init App
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
     $(document).ready(function() {
       if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
@@ -979,6 +1123,7 @@
       });
 
       $(window).resize(board.resize);
+      checkAdminAccess();
       renderLessons();
     });
   </script>
