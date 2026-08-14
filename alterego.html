@@ -3,91 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>AALTEEER - Gapiruvchi AI Botlar & Alter Ego</title>
+  <title>AALTEEER - Ovozli AI Botlar</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    .bot-3d-card {
+      background: linear-gradient(145deg, #1f1d2e, #13121d);
+      border: 1px solid var(--border-glass);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #09080e, 0 12px 25px rgba(0,0,0,0.6);
+      transition: all 0.15s ease-out;
+    }
+    .bot-3d-card:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #09080e, 0 4px 10px rgba(0,0,0,0.4);
+    }
+    .bot-avatar-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: #28263a;
+      border: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Top Glass Header -->
+  <!-- Top Header -->
   <div class="top-header">
     <div class="brand-box">
       <div class="brand-logo">🧬</div>
       <div class="brand-title">AI BOTLAR</div>
     </div>
     <div class="header-actions">
-      <div class="user-badge" id="botTierBadge">
-        <span>🎙️</span> <span>Ovozli AI Raqiblar</span>
+      <div class="user-badge">
+        <span>🎙️</span> <span>Ovozli Raqiblar</span>
       </div>
     </div>
   </div>
 
   <div style="max-width:440px; margin:0 auto; padding:14px;">
     
-    <!-- Alter Ego Shaxsiy Bot Klonlash -->
-    <div class="skills-card" style="text-align:center; border-color:var(--border-gold);">
-      <div style="font-size:36px; margin-bottom:6px;">🪞</div>
-      <h3 style="font-size:16px; color:var(--accent-gold); margin-bottom:4px;">Alter Ego: Sizning AI Kloningiz</h3>
-      <p style="font-size:11px; color:var(--text-muted); line-height:1.4; margin-bottom:14px;">
-        Sizning uslubingizda o'ynaydi va o'yinda siz kabi fikr bildirib, gaplashib turadi.
+    <!-- Alter Ego Bot Klonlash -->
+    <div class="skills-card" style="text-align:center; border-color:var(--border-gold); margin-bottom:16px;">
+      <div style="font-size:38px; margin-bottom:4px;">🪞</div>
+      <h3 style="font-size:16px; color:var(--accent-gold); margin-bottom:4px;">Alter Ego: Shaxsiy AI Kloningiz</h3>
+      <p style="font-size:11px; color:var(--text-muted); line-height:1.4; margin-bottom:12px;">
+        Sizning o'yin uslubingizda o'ynaydi va siz kabi gapiradi.
       </p>
-      <button class="btn btn-gold" style="width:100%;" onclick="activateCloneBot()">
-        Klon Bot bilan O'ynash (Sizdek O'ynaydi va Gapiradi) 🚀
+      <button class="btn btn-gold" style="width:100%; padding:14px; font-weight:900;" onclick="activateCloneBot()">
+        Klon Bot bilan O'ynash 🚀
       </button>
     </div>
 
-    <!-- AI Botlar Ro'yxati -->
-    <h3 style="font-size:14px; font-weight:800; color:var(--accent-gold); margin:18px 0 10px 4px; text-transform:uppercase; letter-spacing:1px;">
-      Ovozli AI Shaxsiyatlar (Stockfish)
+    <h3 style="font-size:13px; font-weight:900; color:var(--accent-gold); margin:0 0 12px 4px; text-transform:uppercase; letter-spacing:1px;">
+      Ovozli AI Shaxsiyatlar
     </h3>
 
-    <!-- Bot 1: Boshlang'ich -->
-    <div class="duo-node active-lesson" style="margin-bottom:10px;" onclick="selectVoiceBot('🌱', 'Samandar (Boshlang\'ich)', 800, 3, 'beginner', 'Siz bilan do\'stona o\'rganadi va sodda gapiradi.')">
-      <div class="node-left">
-        <div class="node-icon">🌱</div>
+    <!-- 1. Samandar -->
+    <div class="bot-3d-card" onclick="selectVoiceBot('🌱', 'Samandar', 800, 3, 'beginner', 'Sodda o\'ynaydi va o\'rganadi')">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="bot-avatar-box">🌱</div>
         <div>
-          <div class="node-title">Samandar — ELO: 800</div>
-          <div class="node-sub">"Hali o'rganyapman, sekinroq o'ynang!"</div>
+          <div style="font-size:14px; font-weight:800;">Samandar — ELO: 800</div>
+          <div style="font-size:11px; color:var(--text-muted);">"Sekinroq o'ynang, hali o'rganyapman!"</div>
         </div>
       </div>
-      <span class="node-status-badge">Oson</span>
+      <button class="btn btn-gold" style="padding:8px 14px; font-size:11px;">Jang ⚔️</button>
     </div>
 
-    <!-- Bot 2: Havaskor -->
-    <div class="duo-node active-lesson" style="margin-bottom:10px;" onclick="selectVoiceBot('⚔️', 'Temur (Hujumchi Havaskor)', 1400, 6, 'balanced', 'Hujum qilganda maxtanadi, xato qilsa afsuslanadi.')">
-      <div class="node-left">
-        <div class="node-icon">⚔️</div>
+    <!-- 2. Temur -->
+    <div class="bot-3d-card" onclick="selectVoiceBot('⚔️', 'Temur', 1400, 6, 'balanced', 'Hujumkor kombinatsiyalar')">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="bot-avatar-box">⚔️</div>
         <div>
-          <div class="node-title">Temur — ELO: 1400</div>
-          <div class="node-sub">"Hozir markazdan zarba beraman, qarab turing!"</div>
+          <div style="font-size:14px; font-weight:800;">Temur — ELO: 1400</div>
+          <div style="font-size:11px; color:var(--accent-cyan);">"Markazdan zarba beraman, tayyor turing!"</div>
         </div>
       </div>
-      <span class="node-status-badge" style="color:var(--accent-cyan);">O'rta</span>
+      <button class="btn btn-gold" style="padding:8px 14px; font-size:11px;">Jang ⚔️</button>
     </div>
 
-    <!-- Bot 3: Karpov (Pozitsion Master) -->
-    <div class="duo-node active-lesson" style="margin-bottom:10px;" onclick="selectVoiceBot('🛡️', 'Anatoly Karpov (Pozitsion)', 2200, 10, 'solid', 'Juda xotirjam va sovuqqon gapiradi.')">
-      <div class="node-left">
-        <div class="node-icon">🛡️</div>
+    <!-- 3. Karpov -->
+    <div class="bot-3d-card" onclick="selectVoiceBot('🛡️', 'Karpov', 2200, 10, 'solid', 'Sovuqqon pozitsion usta')">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="bot-avatar-box">🛡️</div>
         <div>
-          <div class="node-title">Karpov — ELO: 2200</div>
-          <div class="node-sub">"Shoshilmang, pozitsiyangiz asta-sekin qisilib bormoqda."</div>
+          <div style="font-size:14px; font-weight:800;">Anatoly Karpov — ELO: 2200</div>
+          <div style="font-size:11px; color:var(--accent-gold);">"Shoshilmang, pozitsiyangiz qisilmoqda."</div>
         </div>
       </div>
-      <span class="node-status-badge" style="color:var(--accent-gold);">Master</span>
+      <button class="btn btn-gold" style="padding:8px 14px; font-size:11px;">Jang ⚔️</button>
     </div>
 
-    <!-- Bot 4: Tal (Tajovuzkor Grandmaster) -->
-    <div class="duo-node active-lesson" style="margin-bottom:10px;" onclick="selectVoiceBot('🔥', 'Mikhail Tal (Tajovuzkor GM)', 2500, 14, 'aggressive', 'Qurbonliklar qiladi va sizni jangga chorlab gapiradi.')">
-      <div class="node-left">
-        <div class="node-icon">🔥</div>
+    <!-- 4. Tal -->
+    <div class="bot-3d-card" onclick="selectVoiceBot('🔥', 'Mikhail Tal', 2500, 14, 'aggressive', 'To\'xtovsiz olovli hujum')">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="bot-avatar-box">🔥</div>
         <div>
-          <div class="node-title">Mikhail Tal — ELO: 2500</div>
-          <div class="node-sub">"Shohingizni himoyalang, olovli hujum boshlandi!"</div>
+          <div style="font-size:14px; font-weight:800;">Mikhail Tal — ELO: 2500</div>
+          <div style="font-size:11px; color:var(--accent-red);">"Shohingizni asrang, qurbonliklar boshlandi!"</div>
         </div>
       </div>
-      <span class="node-status-badge" style="color:var(--accent-red);">Grandmaster</span>
+      <button class="btn btn-gold" style="padding:8px 14px; font-size:11px;">Jang ⚔️</button>
     </div>
 
   </div>
@@ -97,6 +127,10 @@
     <a href="index.html" class="nav-item">
       <span class="nav-icon">♟️</span>
       <span>Maydon</span>
+    </a>
+    <a href="analysis.html" class="nav-item">
+      <span class="nav-icon">📊</span>
+      <span>Tahlil</span>
     </a>
     <a href="lessons.html" class="nav-item">
       <span class="nav-icon">🎬</span>
@@ -114,16 +148,9 @@
 
   <script>
     function selectVoiceBot(avatar, name, elo, depth, personality, desc) {
-      const botConfig = {
-        avatar: avatar,
-        name: name,
-        elo: elo,
-        depth: depth,
-        personality: personality,
-        desc: desc
-      };
+      const botConfig = { avatar, name, elo, depth, personality, desc };
       localStorage.setItem('aalteeer_selected_bot', JSON.stringify(botConfig));
-      alert(`🤖 Tanlandi: ${name}\nO'yinda bu bot siz bilan o'zbekcha gaplashib o'ynaydi!`);
+      alert(`🤖 Tanlandi: ${name}\nO'yinda bu bot siz bilan o'zbekcha gaplashadi!`);
       window.location.href = 'index.html';
     }
 
@@ -136,7 +163,7 @@
         elo: 2300,
         depth: 11,
         personality: 'clone',
-        desc: "Sizning shaxsiy o'yin va so'zlashuv uslubingizdagi bot."
+        desc: "Sizning shaxsiy uslubingizdagi AI bot."
       };
       localStorage.setItem('aalteeer_selected_bot', JSON.stringify(cloneConfig));
       alert(`🧬 Sizning shaxsiy AI botingiz faollashdi!`);
