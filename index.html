@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>AALTEEER Chess AI</title>
   
-  <!-- Chess CSS & Dependencies -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
@@ -30,7 +29,6 @@
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -40,7 +38,6 @@
       overflow-x: hidden;
     }
 
-    /* Header */
     .header {
       background-color: var(--bg-header);
       padding: 12px 15px;
@@ -58,34 +55,12 @@
       color: var(--accent);
     }
 
-    .brand-title span {
-      color: var(--text-main);
-    }
+    .brand-title span { color: var(--text-main); }
+    .subtitle { font-size: 10px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; }
 
-    .subtitle {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-top: 2px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
-    /* Page View Controller */
-    .tab-content {
-      display: none;
-      animation: fadeIn 0.2s ease-in-out;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Skill Progress Section */
     .progress-section {
       background: var(--bg-secondary);
       padding: 12px 15px;
@@ -102,11 +77,7 @@
       font-size: 11px;
     }
 
-    .progress-label {
-      width: 75px;
-      color: var(--text-muted);
-    }
-
+    .progress-label { width: 75px; color: var(--text-muted); }
     .progress-bar-bg {
       flex-grow: 1;
       height: 6px;
@@ -122,14 +93,8 @@
       border-radius: 3px;
     }
 
-    .progress-percent {
-      width: 35px;
-      text-align: right;
-      font-weight: bold;
-      color: var(--accent-green);
-    }
+    .progress-percent { width: 35px; text-align: right; font-weight: bold; color: var(--accent-green); }
 
-    /* Game Top Status */
     .game-info-bar {
       display: flex;
       justify-content: space-between;
@@ -139,12 +104,7 @@
       border-bottom: 1px solid var(--border-color);
     }
 
-    .player-card {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .player-card { display: flex; align-items: center; gap: 8px; }
     .player-avatar {
       width: 30px;
       height: 30px;
@@ -156,22 +116,9 @@
       font-size: 14px;
     }
 
-    .player-details {
-      display: flex;
-      flex-direction: column;
-    }
+    .player-name { font-size: 12px; font-weight: bold; }
+    .player-elo { font-size: 10px; color: var(--text-muted); }
 
-    .player-name {
-      font-size: 12px;
-      font-weight: bold;
-    }
-
-    .player-elo {
-      font-size: 10px;
-      color: var(--text-muted);
-    }
-
-    /* Chessboard Area */
     .container {
       padding: 10px;
       display: flex;
@@ -188,11 +135,8 @@
       max-width: 380px;
     }
 
-    #board {
-      width: 100%;
-    }
+    #board { width: 100%; }
 
-    /* Action Buttons */
     .action-panel {
       display: flex;
       gap: 8px;
@@ -211,21 +155,10 @@
       font-weight: bold;
       font-size: 11px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
       border: 1px solid var(--border-color);
     }
 
-    .btn:active {
-      background-color: #333;
-    }
-
-    .btn-primary {
-      background-color: var(--accent);
-      border-color: var(--accent);
-    }
+    .btn-primary { background-color: var(--accent); border-color: var(--accent); }
 
     .history-card {
       width: 100%;
@@ -239,10 +172,8 @@
       font-size: 11px;
       color: var(--text-muted);
       border: 1px solid var(--border-color);
-      line-height: 1.4;
     }
 
-    /* Cards & Lists for Other Tabs */
     .card-list {
       padding: 15px;
       display: flex;
@@ -263,10 +194,6 @@
       cursor: pointer;
     }
 
-    .menu-card:active {
-      background-color: #2f2c28;
-    }
-
     .card-icon {
       font-size: 24px;
       width: 40px;
@@ -278,17 +205,9 @@
       border-radius: 8px;
     }
 
-    .card-info h3 {
-      font-size: 14px;
-      margin-bottom: 2px;
-    }
+    .card-info h3 { font-size: 14px; margin-bottom: 2px; }
+    .card-info p { font-size: 11px; color: var(--text-muted); }
 
-    .card-info p {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    /* Bottom Navigation */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -314,25 +233,18 @@
       width: 20%;
     }
 
-    .nav-item.active {
-      color: var(--accent);
-    }
-
-    .nav-icon {
-      font-size: 18px;
-      margin-bottom: 2px;
-    }
+    .nav-item.active { color: var(--accent); }
+    .nav-icon { font-size: 18px; margin-bottom: 2px; }
   </style>
 </head>
 <body>
 
-  <!-- App Header -->
   <div class="header">
     <div class="brand-title">AALTEEER <span>AI</span></div>
     <div class="subtitle">Sizning Shaxmatdagi Ikkinchi "Men"ingiz</div>
   </div>
 
-  <!-- TAB 1: ASOSIY (GAME & DASHBOARD) -->
+  <!-- TAB 1: ASOSIY -->
   <div id="tab-home" class="tab-content active">
     <div class="progress-section">
       <div class="progress-item">
@@ -366,7 +278,7 @@
       <div class="player-card">
         <div class="player-avatar">🤖</div>
         <div class="player-details">
-          <span class="player-name">AALTEEER Engine</span>
+          <span class="player-name" id="ai-name-label">AALTEEER Engine</span>
           <span class="player-elo">ELO: 1850</span>
         </div>
       </div>
@@ -379,13 +291,12 @@
       </div>
 
       <div class="action-panel">
-        <button class="btn btn-primary" onclick="resetGame()">🔄 Yangi</button>
+        <button class="btn btn-primary" onclick="resetGame()">🔄 Yangi O'yin</button>
         <button class="btn" onclick="undoMove()">↩️ Qaytarish</button>
-        <button class="btn" onclick="toggleVoice()">🎙️ Ovoz</button>
       </div>
 
       <div class="history-card" id="move-history">
-        O'yin boshlanishi bilan yurishlar tarixi bu yerda ko'rinadi...
+        Yurishlar tarixi bu yerda yoziladi...
       </div>
     </div>
   </div>
@@ -393,25 +304,19 @@
   <!-- TAB 2: DARSLAR -->
   <div id="tab-lessons" class="tab-content">
     <div class="card-list">
-      <div class="menu-card" onclick="alert('Debyutlar darsi tez kunda faollashadi!')">
+      <h2 style="font-size:16px; color:var(--accent);">🎓 Debyutlar Akademiyasi</h2>
+      <div class="menu-card" onclick="loadLesson('r1bqkb1r/pppp1ppp/2n5/4p3/2B1n3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4', 'Taktik zarba: F7 qurbonligi')">
         <div class="card-icon">📖</div>
         <div class="card-info">
-          <h3>Debyutlar Akademiyasi</h3>
-          <p>Sitsiliya, Fransuz va Qirolcha himoyasi nazariyalari.</p>
+          <h3>Italyancha Partiya (Taktika)</h3>
+          <p>F7 zaif katagiga hujum qilish masalasi.</p>
         </div>
       </div>
-      <div class="menu-card" onclick="alert('Taktik trenajer tez kunda ochiladi!')">
+      <div class="menu-card" onclick="loadLesson('rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2', 'Sitsiliya Himoyasi')">
         <div class="card-icon">⚡</div>
         <div class="card-info">
-          <h3>Taktik Trenajer</h3>
-          <p>Vilka, bog'lanish va 2-yurishda mot masalalari.</p>
-        </div>
-      </div>
-      <div class="menu-card" onclick="alert('Endshpil qoidalari bo\'limi yuklanmoqda!')">
-        <div class="card-icon">👑</div>
-        <div class="card-info">
-          <h3>Endshpil Nazariyasi</h3>
-          <p>Piyodalar va Shoh pozitsiyalarini to'g'ri o'ynash.</p>
+          <h3>Sitsiliya Himoyasi</h3>
+          <p>Oqlar e4 yurishiga eng tajovuzkor javob.</p>
         </div>
       </div>
     </div>
@@ -420,45 +325,47 @@
   <!-- TAB 3: LIVE & SOTSIAL -->
   <div id="tab-live" class="tab-content">
     <div class="card-list">
-      <div class="menu-card" onclick="alert('PVP turnirlar yaqin orada qo\'shiladi!')">
-        <div class="card-icon">⚔️</div>
+      <h2 style="font-size:16px; color:var(--accent);">⚔️ Sotsial va Ovozli Rejim</h2>
+      <div class="menu-card" onclick="toggleBlindfold()">
+        <div class="card-icon">🙈</div>
         <div class="card-info">
-          <h3>Do'stlar Bilan O'yin (PVP)</h3>
-          <p>Telegramdagi do'stlaringizga qarshi onlayn bahs.</p>
+          <h3>Blindfold Mode (Ko'zsiz Shaxmat)</h3>
+          <p>Donalarni yashirib, xotira bilan o'ynash.</p>
         </div>
       </div>
-      <div class="menu-card" onclick="alert('Blindfold (ko\'zsiz shaxmat) rejimi tayyorlanmoqda!')">
-        <div class="card-icon">🎙️</div>
+      <div class="menu-card" onclick="shareGame()">
+        <div class="card-icon">👥</div>
         <div class="card-info">
-          <h3>Vocal Blindfold Chess</h3>
-          <p>Taxtaga qaramasdan, ovoz orqali shaxmat o'ynash.</p>
-        </div>
-      </div>
-      <div class="menu-card" onclick="alert('Jonli translyatsiya bo\'limi!')">
-        <div class="card-icon">📡</div>
-        <div class="card-info">
-          <h3>Live Stream & Kuzatuv</h3>
-          <p>Boshqa shaxmatchilarning jonli o'yinlarini tomosha qilish.</p>
+          <h3>Do'stni O'yinga Chaqirish (PVP)</h3>
+          <p>Havolani do'stlaringizga yuborish.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- TAB 4: AI ALTER EGO -->
+  <!-- TAB 4: AI BOT / ALTER EGO -->
   <div id="tab-bot" class="tab-content">
     <div class="card-list">
-      <div class="menu-card" onclick="alert('Uslub tahlili faollashdi! 10 ta o\'yindan so\'ng botingiz yaratiladi.')">
-        <div class="card-icon">🧬</div>
+      <h2 style="font-size:16px; color:var(--accent);">🤖 AI Shaxsiyatini Tanlash</h2>
+      <div class="menu-card" onclick="setAiBot('Tajovuzkor (Aggressive)')">
+        <div class="card-icon">🔥</div>
         <div class="card-info">
-          <h3>Clone My Playstyle</h3>
-          <p>O'yinlaringizni tahlil qilib, o'zingizning bot nusxangizni yarating.</p>
+          <h3>Tajovuzkor Bot</h3>
+          <p>Hujumkor, doimiy qurbonliklar qiluvchi uslub.</p>
         </div>
       </div>
-      <div class="menu-card" onclick="alert('Raqib shaxsiyati tanlandi!')">
-        <div class="card-icon">🎭</div>
+      <div class="menu-card" onclick="setAiBot('Pozitsion (Solid)')">
+        <div class="card-icon">🛡️</div>
         <div class="card-info">
-          <h3>AI Xarakterini Tanlash</h3>
-          <p>Tajovuzkor (Aggressive), Pozitsion yoki Taktik bot.</p>
+          <h3>Pozitsion Bot</h3>
+          <p>Xatosiz, mustahkam himoyaga tayanuvchi uslub.</p>
+        </div>
+      </div>
+      <div class="menu-card" onclick="setAiBot('Mening Alter Ego nusxam')">
+        <div class="card-icon">🧬</div>
+        <div class="card-info">
+          <h3>O'z Uslubingizni Klonlash</h3>
+          <p>Sizdek o'ynaydigan shaxsiy AI botingiz.</p>
         </div>
       </div>
     </div>
@@ -467,24 +374,17 @@
   <!-- TAB 5: SOZLAMALAR -->
   <div id="tab-settings" class="tab-content">
     <div class="card-list">
-      <div class="menu-card" onclick="alert('Profil ma\'lumotlari Telegram orqali yuklandi!')">
+      <h2 style="font-size:16px; color:var(--accent);">⚙️ Sozlamalar & Profil</h2>
+      <div class="menu-card">
         <div class="card-icon">👤</div>
         <div class="card-info">
-          <h3>Profil & ELO Reyting</h3>
-          <p>O'yinlar statistikasi va g'alabalar nisbati.</p>
-        </div>
-      </div>
-      <div class="menu-card" onclick="alert('Dizayn tanlash bo\'limi!')">
-        <div class="card-icon">🎨</div>
-        <div class="card-info">
-          <h3>Taxta va Donalar Dizayni</h3>
-          <p>Lichess, Yog'och yoki Neoklassik ko'rinish.</p>
+          <h3>Foydalanuvchi Profili</h3>
+          <p>ELO: 1500 | G'alabalar: 0 | Mag'lubiyat: 0</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Bottom Navigation Bar -->
   <div class="bottom-nav">
     <div class="nav-item active" onclick="switchTab('home', this)">
       <span class="nav-icon">🏠</span>
@@ -508,46 +408,40 @@
     </div>
   </div>
 
-  <!-- JS Logic -->
   <script>
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
-    // Tab Switching
     function switchTab(tabId, el) {
       $('.tab-content').removeClass('active');
       $('.nav-item').removeClass('active');
       $('#tab-' + tabId).addClass('active');
       $(el).addClass('active');
-
       if (tabId === 'home' && board) {
         board.resize();
       }
     }
 
-    // Chess Logic
     var board = null;
     var game = new Chess();
     var historyElement = $('#move-history');
     var statusElement = $('#game-status');
 
     function evaluateBoard(boardState) {
-      var totalEvaluation = 0;
+      var total = 0;
+      var values = { p: 10, r: 50, n: 30, b: 30, q: 90, k: 900 };
       for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
-          totalEvaluation += getPieceValue(boardState[i][j]);
+          var piece = boardState[i][j];
+          if (piece) {
+            var val = values[piece.type] || 0;
+            total += (piece.color === 'w' ? val : -val);
+          }
         }
       }
-      return totalEvaluation;
-    }
-
-    function getPieceValue(piece) {
-      if (piece === null) return 0;
-      var values = { p: 10, r: 50, n: 30, b: 30, q: 90, k: 900 };
-      var val = values[piece.type] || 0;
-      return piece.color === 'w' ? val : -val;
+      return total;
     }
 
     function makeAiMove() {
@@ -557,7 +451,6 @@
         return;
       }
 
-      // Oddiy va ishonchli MiniMax yurish qidiruvi
       var bestMove = null;
       var bestValue = 9999;
 
@@ -565,7 +458,6 @@
         game.move(possibleMoves[i]);
         var evalVal = evaluateBoard(game.board());
         game.undo();
-
         if (evalVal < bestValue) {
           bestValue = evalVal;
           bestMove = possibleMoves[i];
@@ -584,21 +476,12 @@
 
     function onDragStart(source, piece) {
       if (game.game_over()) return false;
-      // Faqat oq donalarni yurishga ruxsat
-      if (piece.search(/^b/) !== -1 || game.turn() !== 'w') {
-        return false;
-      }
+      if (piece.search(/^b/) !== -1 || game.turn() !== 'w') return false;
     }
 
     function onDrop(source, target) {
-      var move = game.move({
-        from: source,
-        to: target,
-        promotion: 'q'
-      });
-
+      var move = game.move({ from: source, to: target, promotion: 'q' });
       if (move === null) return 'snapback';
-
       updateHistory();
       statusElement.text("AALTEEER o'ylamoqda...");
       window.setTimeout(makeAiMove, 300);
@@ -616,7 +499,7 @@
 
     function updateGameStatus() {
       if (game.in_checkmate()) {
-        statusElement.text(game.turn() === 'w' ? "Mot! Qoralar g'alaba qozondi." : "Mot! Siz g'alaba qozondingiz! 🎉");
+        statusElement.text(game.turn() === 'w' ? "Mot! Qoralar yutdi." : "Mot! Siz yutdingiz! 🎉");
       } else if (game.in_draw()) {
         statusElement.text("Durang!");
       } else {
@@ -627,6 +510,7 @@
     function resetGame() {
       game.reset();
       board.start();
+      $('.piece-417db').css('opacity', '1');
       updateHistory();
       updateGameStatus();
     }
@@ -639,11 +523,35 @@
       updateGameStatus();
     }
 
-    function toggleVoice() {
-      alert("🎙️ Ovozli rejim (Blindfold) tez orada to'liq ulanadi!");
+    function loadLesson(fen, title) {
+      switchTab('home', $('.nav-item')[0]);
+      game.load(fen);
+      board.position(fen);
+      statusElement.text("Mashq: " + title);
     }
 
-    // Board Configuration
+    var blindfoldActive = false;
+    function toggleBlindfold() {
+      blindfoldActive = !blindfoldActive;
+      switchTab('home', $('.nav-item')[0]);
+      $('.piece-417db').css('opacity', blindfoldActive ? '0' : '1');
+      alert(blindfoldActive ? "🙈 Blindfold yoqildi! Donalar yashirildi." : "Donalar qaytarildi.");
+    }
+
+    function shareGame() {
+      if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.openTelegramLink("https://t.me/share/url?url=" + encodeURIComponent(window.location.href) + "&text=AALTEEER Chess AI'da men bilan o'yna!");
+      } else {
+        alert("Havola: " + window.location.href);
+      }
+    }
+
+    function setAiBot(name) {
+      $('#ai-name-label').text("Bot: " + name);
+      alert("AI raqib tanlandi: " + name);
+      switchTab('home', $('.nav-item')[0]);
+    }
+
     var config = {
       draggable: true,
       position: 'start',
